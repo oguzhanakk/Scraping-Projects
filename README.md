@@ -1,5 +1,5 @@
-# Cimri-checker
-A python program that scans all pages of https://www.cimri.com/ and transfers finished products to excel and then to postgre database.
+# All-Scrapy-Projects
+A python program that uses Scrapy to scrape information from multiple websites or applications and transfer it to a PostgreSQL database or send it to relevant individuals through email.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
