@@ -12,8 +12,8 @@ class CimriSpider(scrapy.Spider):
     csv_data = []
 
     def parse(self, response):
-        current_day = datetime.date.today()
-        formatted_date = datetime.date.strftime(current_day, "%d.%m.%Y")
+        current_day = datetime.now()
+        formatted_date = current_day.strftime("%d.%m.%Y")
 
         category_name = "Gazli_Icecek"
         product_title = response.css(".ProductCard_productName__35zi5 p::text").extract()
@@ -56,8 +56,8 @@ class CimriSpider(scrapy.Spider):
     
     # Moving to the snack part 
     def product_parse(self, response):
-        current_day = datetime.date.today()
-        formatted_date = datetime.date.strftime(current_day, "%d.%m.%Y")
+        current_day = datetime.now()
+        formatted_date = current_day.strftime("%d.%m.%Y")
 
         category_name = "atistirmalik"
         product_title = response.css(".ProductCard_productName__35zi5 p::text").extract()
