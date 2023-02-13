@@ -2,77 +2,91 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 
-browser = webdriver.Chrome()
-url = "https://getir.com/yemek/"
-browser.get(url)
-time.sleep(3)
+def try_except_click(div_id):
+    while True:
+        try:
+            div_id.click()
+        except:
+            time.sleep(1)
+        else:
+            time.sleep(2)
+            break
 
-konumunu_bul = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/section/div/section[1]/div[3]/div[1]/article/div/div/div[3]/button')
-konumunu_bul.click()
-time.sleep(3)
+def location_20_restaurants(location, answer = 1):
+    browser = webdriver.Chrome()
+    url = "https://getir.com/yemek/"
+    browser.get(url)
+    time.sleep(3)
+    
+    accept_the_cookie = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/div/div[2]/div[1]/button')
+    try_except_click(accept_the_cookie)
 
-Adres = browser.find_element(By.XPATH,'/html/body/div[4]/div[2]/div/div[2]/div[2]/div[1]/div/div/div/div[1]/article/div/div/div[2]/div/div/input')
-Adres.send_keys('Sisli')
-time.sleep(3)
-Adres_sec = browser.find_element(By.XPATH, '//*[@id="react-autowhatever-1--item-0"]/div/button')
-Adres_sec.click()
-time.sleep(3)
-Bu_adresi_kullan = browser.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div[2]/div[2]/div[2]/button')
-Bu_adresi_kullan.click()
-time.sleep(3)
-Kaydet = browser.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div[2]/div[2]/div/form/div[5]/button')
-Kaydet.click()
-time.sleep(3)
-Evet = browser.find_element(By.XPATH, '/html/body/div[5]/div[2]/div/div/div[3]/div/div[2]/button')
-Evet.click()
-time.sleep(8)
-browser.execute_script("window.scrollTo(0, (document.body.scrollHeight-1500));")
-time.sleep(6)
-Daha_fazla_restoren = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/div/div/button')
-Daha_fazla_restoren.click()
-time.sleep(5)
+    find_location = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/section/div/section[1]/div[3]/div[1]/article/div/div/div[3]/button')
+    try_except_click(find_location)
 
-isim2 = []
-first_time = True
-isim = browser.find_elements(By.CSS_SELECTOR, ".style__ParagraphText-sc-__sc-1nwjacj-9")
-for element in isim:
-    if first_time:
-        print(element.text)
-        first_time = False
+    Address = browser.find_element(By.XPATH,'/html/body/div[4]/div[2]/div/div[2]/div[2]/div[1]/div/div/div/div[1]/article/div/div/div[2]/div/div/input')
+    Address.send_keys(location)
+    time.sleep(3)
+    
+    choose_address = browser.find_element(By.XPATH, '//*[@id="react-autowhatever-1--item-0"]/div/button')
+    try_except_click(choose_address)
+    
+    use_this_address = browser.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div[2]/div[2]/div[2]/button')
+    try_except_click(use_this_address)
+
+    Save = browser.find_element(By.XPATH, '/html/body/div[4]/div[2]/div/div[2]/div[2]/div/form/div[5]/button')
+    try_except_click(Save)
+
+    Yes = browser.find_element(By.XPATH, '/html/body/div[5]/div[2]/div/div/div[3]/div/div[2]/button')
+    try_except_click(Yes)
+    time.sleep(2)
+    
+    if(answer == '2'):
+        browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/aside/div/div[2]/div[1]/div/div[2]/div/div/label[2]/span[2]/span').click()
+    elif(answer == '3'):
+        browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/aside/div/div[2]/div[1]/div/div[2]/div/div/label[3]/span[2]/span').click()
+    elif(answer == '4'):
+        browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/aside/div/div[2]/div[1]/div/div[2]/div/div/label[4]/span[2]/span').click()
+    elif(answer == '5'):
+        browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/aside/div/div[2]/div[1]/div/div[2]/div/div/label[5]/span[2]/span').click()
+    elif(answer == '6'):
+        browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/aside/div/div[2]/div[1]/div/div[2]/div/div/label[6]/span[2]/span').click()
     else:
-        #isim.append(element)
-        isim2.append(element.text)
-        #print('isim:',element.text)
+        browser.execute_script("window.scrollTo(0, (document.body.scrollHeight-1500));")
+        time.sleep(4)
+        More_Restaurants = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/main/div/section/section[3]/div/div/button')
+        try_except_click(More_Restaurants)
+    time.sleep(4)
 
-sure = []
-getirme_suresi = browser.find_elements(By.CSS_SELECTOR, ".sc-9cff985f-2.bThZFC")
-for element in getirme_suresi:
-    sure.append(element.text)
-    #print("getirme suresi:", element.text)
+    #We contain all the information of 20 restaurants.
+    information = []
+    for i in range(4,24):
+        elements = browser.find_elements(By.CSS_SELECTOR, '.style__CardWrapper-sc-__sc-sbxwka-12.iBBNFu')
+        second_elements = elements[i]
+        second_elements.find_elements(By.CSS_SELECTOR, '.style__Text-sc-__sc-1nwjacj-0.iwTTHJ')
+        information.append([second_elements.text])
 
-'''
-#min_tutar = browser.find_elements(By.CSS_SELECTOR, ".span.style__Text-sc-__sc-1nwjacj-0")
-#for element in getirme_suresi:
-#    print("minimum tutar:", element.text)
-'''
+    print(information)
+    
+    time.sleep(1000)
+    browser.close()
 
-yildiz2 = []
-yorum_sayisi = []
-min_tutar = []
-yildiz = browser.find_elements(By.CSS_SELECTOR, '.style__Text-sc-__sc-1nwjacj-0.iwTTHJ')
-for element in yildiz[26:87]:
-    yildiz2.append(element.text)
+def main():
+    location = str(input('Enter the location name: '))
+    
+    filtre_answer = str(input('''
+                                How to rank
+                              ******************************
+                                Smart sort (default): 1
+                                Restaurant Points : 2
+                                Delivery Time : 3
+                                Top rated : 4
+                                Alphabetical Order : 5
+                                Discount Rate: 6
+                                :'''))
+    
+    location_20_restaurants(location, filtre_answer)
 
-yeni_liste = []
-for i in range(0, len(yildiz2), 3):
-    yeni_liste.append(yildiz2[i:i+3])
 
-print(isim2)
-print(sure)
-print(yeni_liste)
-'''
-for i in range(0,len(isim2[i])):
-    print(isim2[i],sure[i],yeni_liste[i])
-'''
-
-browser.close()
+if __name__=='__main__':
+    main()
