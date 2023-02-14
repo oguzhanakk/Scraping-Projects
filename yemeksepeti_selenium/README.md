@@ -4,7 +4,7 @@ A python program that takes the information of the restaurants in the relevant l
 # Requirements
 To run this project, you will need to have the following software requirements:
 
-• scrapy
+• selenium
 • postgre
 • pandas
 • flask
