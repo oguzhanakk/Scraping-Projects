@@ -1,6 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import pandas as pd
+
+number_of_products_scanned = 10
+
+links = []
+restaurant_name = []
+stars_comment = []
+times = []
+min_price = []
+all = []
 
 def try_except_click(browser,XPATH):
     while True:
@@ -13,8 +23,22 @@ def try_except_click(browser,XPATH):
         else:
             time.sleep(2)
             break
+        
+def try_except_getinfo(browser,last_div,list):
+    global number_of_products_scanned
+    while True:
+        try:
+            for i in range(0,number_of_products_scanned):
+                    id = browser.find_element(By.CSS_SELECTOR, '.sc-a58b4dc-1.bhdhOP').find_elements(By.CSS_SELECTOR,'.sc-bebb1019-13.fRjDnj')[i].find_element(By.CSS_SELECTOR,last_div)
+                    list.append(id.text)
+            time.sleep(1)
+            print(list)
+            break
+        except:
+            time.sleep(1)
+            continue
 
-def location_20_restaurants(location, answer = 1):
+def location_20_restaurants(location, answer = 1): 
     browser = webdriver.Chrome()
     url = "https://getir.com/yemek/"
     browser.get(url)
@@ -53,16 +77,21 @@ def location_20_restaurants(location, answer = 1):
         time.sleep(4)
         try_except_click(browser, '//*[@id="__next"]/div[2]/main/div/section/section[3]/div/div/button')
     time.sleep(8)
-
-    #We contain all the information of 20 restaurants.
-    information = []
-    for i in range(4,13):
-        elements = browser.find_elements(By.CSS_SELECTOR, '.style__CardWrapper-sc-__sc-sbxwka-12.iBBNFu')
-        second_elements = elements[i]
-        second_elements.find_elements(By.CSS_SELECTOR, '.style__Text-sc-__sc-1nwjacj-0.iwTTHJ')
-        information.append([second_elements.text])
-
-    print(information)
+    
+    #---------------------------------------------------------------------------------------------------------------
+    
+    for i in range(0,number_of_products_scanned):
+        link = browser.find_element(By.CSS_SELECTOR, '.sc-a58b4dc-1.bhdhOP').find_elements(By.CSS_SELECTOR,'.sc-bebb1019-13.fRjDnj')[i].find_element(By.CSS_SELECTOR,'.style__Wrapper-sc-__sc-1gkqffg-1').get_attribute('href')
+        links.append(link)
+    
+    try_except_getinfo(browser,'.style__Wrapper-sc-__sc-1gkqffg-1',restaurant_name)
+    try_except_getinfo(browser,'.style__Text-sc-__sc-1nwjacj-0.iwTTHJ.sc-9cff985f-4.esvgxl',min_price)
+    try_except_getinfo(browser,'.sc-9cff985f-2.bThZFC',time)
+    try_except_getinfo(browser,'.style__LabelWrapper-sc-__sc-9sluxo-2.jFruOO.sc-f7b92151-0.fdjyRo',stars_comment)
+    
+    df = pd.DataFrame(all)
+    df.columns = ["Name","Times","Link","MinPrice","Stars_Comment"]
+    df.to_excel("GetirYemek.xlsx")
     
     time.sleep(1000)
     browser.close()
