@@ -43,7 +43,6 @@ def all_restorant_info(lat,lng):
     
     Scroll(browser)
     
-    links = []
     for i in range(0,number_of_products_scanned):
         link = browser.find_element(By.CSS_SELECTOR, '.vendor-list-section.open-section').find_elements(By.CSS_SELECTOR,'.vendor-tile-wrapper a')[i].get_attribute('href')
         links.append(link)

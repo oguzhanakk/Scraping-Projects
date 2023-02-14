@@ -86,7 +86,7 @@ def location_20_restaurants(location, answer = 1):
     
     try_except_getinfo(browser,'.style__Wrapper-sc-__sc-1gkqffg-1',restaurant_name)
     try_except_getinfo(browser,'.style__Text-sc-__sc-1nwjacj-0.iwTTHJ.sc-9cff985f-4.esvgxl',min_price)
-    try_except_getinfo(browser,'.sc-9cff985f-2.bThZFC',time)
+    try_except_getinfo(browser,'.sc-9cff985f-2.bThZFC',times)
     try_except_getinfo(browser,'.style__LabelWrapper-sc-__sc-9sluxo-2.jFruOO.sc-f7b92151-0.fdjyRo',stars_comment)
     
     df = pd.DataFrame(all)
