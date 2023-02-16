@@ -93,18 +93,19 @@ def main():
     
     #Can change to the link,scroll_number,excel_name
     #75 scroll ends 679 comments.Each scroll is like 10 comments.
-    link = "https://www.google.com/maps/place/800PIZZA+Al+Barsha+-+Dubai/@24.8048997,54.5168008,10z/data=!4m8!3m7!1s0x3e5f682f20844969:0xb77679db1b7276f2!8m2!3d25.1161995!4d55.1949154!9m1!1b1!16s%2Fg%2F1vnrp2c6"
-    scroll_number = 50
-    excel_name = "Meheiri_Dubai_900Pizza"
+    links = ["https://www.google.com/maps/place/Domino's+Pizza/@24.7927019,54.4386021,9z/data=!4m8!3m7!1s0x3e5f5b95260a5bfd:0xcdcff17606bf5004!8m2!3d25.3258811!4d55.3798685!9m1!1b1!16s%2Fg%2F1hc7h4hld"]
+    scroll_numbers = [200]
+    excel_name = ["Buhaira_Oasis _Tower_Sharjah_Dominos"]
     
-    browser.get(link)
-    time.sleep(5)
-    
-    show_more_and_scroll(browser,scroll_number)
-    time.sleep(1)
-    siteyi_tara(browser,excel_name)
-    
-    time.sleep(3)
+    for i in range(0,len(links)):
+        browser.get(links[i])
+        time.sleep(5)
+
+        show_more_and_scroll(browser,scroll_numbers[i])
+        time.sleep(1)
+        siteyi_tara(browser,excel_name[i])
+        
+        time.sleep(3)
     
     browser.close()
     
