@@ -25,14 +25,14 @@ def try_except_getinfo(browser,length,first_div,second_div,third_div,ahref=1,att
         print(f"{third_div} is done.") #This function is complete
         return(list)
 
-def show_more_and_scroll(browser):
+def show_more_and_scroll(browser,scroll_number):
     
     #Scroll
     scroll_script = """
     const myScrollDiv = document.querySelector('.m6QErb.DxyBCb.kA9KIf.dS8AEf');
     myScrollDiv.scrollTo(0, myScrollDiv.scrollHeight);
     """
-    for i in range(0,80): #range(0,variable) is given manually and needs to be automated. !!!
+    for i in range(0,scroll_number): #range(0,variable) is given manually and needs to be automated. !!!
         browser.execute_script(scroll_script)
         time.sleep(1)
     time.sleep(1)
@@ -91,12 +91,18 @@ def main():
     
     browser = webdriver.Chrome()
     
-    #Can change to the url to be crawled.
-    browser.get("https://www.google.com/maps/place/Domino's+Pizza/@24.7927019,54.4386021,9z/data=!4m8!3m7!1s0x3e5f5b95260a5bfd:0xcdcff17606bf5004!8m2!3d25.3258808!4d55.3798681!9m1!1b1!16s%2Fg%2F1hc7h4hld")
-    #75 scroll ends 679 comments. Each scroll is like 10 comments.
-    show_more_and_scroll(browser)
+    #Can change to the link,scroll_number,excel_name
+    #75 scroll ends 679 comments.Each scroll is like 10 comments.
+    link = "https://www.google.com/maps/place/800PIZZA+Al+Barsha+-+Dubai/@24.8048997,54.5168008,10z/data=!4m8!3m7!1s0x3e5f682f20844969:0xb77679db1b7276f2!8m2!3d25.1161995!4d55.1949154!9m1!1b1!16s%2Fg%2F1vnrp2c6"
+    scroll_number = 50
+    excel_name = "Meheiri_Dubai_900Pizza"
+    
+    browser.get(link)
+    time.sleep(5)
+    
+    show_more_and_scroll(browser,scroll_number)
     time.sleep(1)
-    siteyi_tara(browser,"Buhaira_Oasis _Tower_Sharjah_Dominos")
+    siteyi_tara(browser,excel_name)
     
     time.sleep(3)
     
