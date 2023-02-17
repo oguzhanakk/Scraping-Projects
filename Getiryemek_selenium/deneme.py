@@ -3,19 +3,8 @@ from selenium.webdriver.common.by import By
 import time
 
 browser = webdriver.Chrome()
-url = "https://getir.com/yemek/"
+url = "https://getir.com/yemek/restoran/konyali-cankaya-konak-izmir/"
 browser.get(url)
-time.sleep(3)
+time.sleep(30000)
 
-cerezi_accept_et = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/div/div[2]/div[1]/button')
-cerezi_accept_et.click()
-
-while True:
-    try:
-        cerezi_accept_et2 = browser.find_element(By.XPATH, '//*[@id="__next"]/div[2]/div/div[2]/div[1]/button')
-        cerezi_accept_et2.click()
-    except:
-        print('bulamadik abi')
-        time.sleep(1)
-    else:
-        break
+browser.close()
