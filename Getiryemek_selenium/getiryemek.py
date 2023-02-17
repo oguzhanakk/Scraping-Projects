@@ -199,7 +199,7 @@ class GetirYemek():
             All_Comment.append([comment_time[i],comment[i],stars[i]])
         
         All_Comment_df = pd.DataFrame(All_Comment)
-        All_Comment_df.columns = ["Food_Name","Food_Contents","Food_Price"]
+        All_Comment_df.columns = ["Comment","Comment_time","Stars"]
         
         print("Restaurant comment information is complete.")
         
@@ -238,7 +238,7 @@ def main():
     getiryemek.location_20_restaurants(browser, location, filtre_answer)
     time.sleep(3)
     
-    time.sleep(1000)
+    time.sleep(10)
     browser.close()
 
 
