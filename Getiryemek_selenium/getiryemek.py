@@ -52,7 +52,7 @@ class GetirYemek():
         Address.click()
         time.sleep(3)
         Address.send_keys(location)
-        time.sleep(3)
+        time.sleep(6)
         
         self.try_except_click(browser, '//*[@id="react-autowhatever-1--item-0"]/div/button')
         
@@ -115,7 +115,8 @@ class GetirYemek():
 
     def restaurant_menu_info(self, browser, restaurant_link, restaurant_name):
         
-        for i in range(0,len(restaurant_link)):
+        #len(restaurant_link)
+        for i in range(0,1):
             browser.get(restaurant_link[i])
             
             first_div1 = '.style__Wrapper-sc-__sc-sbxwka-15.hZQrGs.sc-f3368356-1'
@@ -190,8 +191,16 @@ class GetirYemek():
 
         comment_time = self.try_except_getinfo(browser,length2,first_div2,second_div2,'.style__Text-sc-__sc-1nwjacj-0')
         comment = self.try_except_getinfo(browser,length2,first_div2,second_div2,'.sc-bf39580-1.jHhxET')
-        stars = self.try_except_getinfo(browser,length2,first_div2,second_div2,'.style__Text-sc-__sc-1nwjacj-0.jbOUDC.sc-be09943-5.kA-DgzG') #yanlis
         
+        stars = []
+        for i in range(0,len(comment)):                                                                                              #i number of comment                                                    #j number of stars
+            number_of_starts = 0
+            for j in range(1,6):                                                                                                    
+                star = browser.find_element(By.CSS_SELECTOR,'.sc-6e847f1f-3.gLdQsQ').find_elements(By.CSS_SELECTOR,'.sc-d4771dd8-2.fCvjfS')[i].find_elements(By.CSS_SELECTOR,'.style__Wrapper-sc-__sc-hqksj3-0.bXLBCy')[j].get_attribute('color')
+                if(star == '#FFD300'):
+                    number_of_starts += 1
+            stars.append(number_of_starts)
+                
         #sayfa2 sayfa3 sayfa4'e gitmesi gerekiyor.
         
         All_Comment = []
