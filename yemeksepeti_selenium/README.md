@@ -1,5 +1,5 @@
-# Yemeksepeti-checker
-A python program that takes the information of the restaurants in the relevant location and the menu information in those restaurants that you will provide on https://www.yemeksepeti.com/ and transfers them to the postgre database.
+# Yemeksepeti-selenium
+It is a python program and selenium project that takes the information of the restaurants in the relevant location, goes to the links of the restaurants one by one, and transfers the menu information and user comments in these restaurants to postgre. It is a project on Yemeksepeti. By entering the location, all restaurants belonging to that location are retrieved.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
@@ -7,7 +7,6 @@ To run this project, you will need to have the following software requirements:
 • selenium
 • postgre
 • pandas
-• flask
 
 # Setup
 To run this project on your own computer, follow these steps:

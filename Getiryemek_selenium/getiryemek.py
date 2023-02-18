@@ -100,7 +100,7 @@ class GetirYemek():
             all_restaurant_info.append([restaurant_name[i],restaurant_link[i],min_price[i],times[i],stars_comment[i]])
         
         all_restaurant_info_df = pd.DataFrame(all_restaurant_info)
-        all_restaurant_info_df.columns = ["Name","Link","Times","MinPrice","Stars_Comment"]
+        all_restaurant_info_df.columns = ["Name","Link","MinPrice","Times","Stars_Comment"]
         
         all_restaurant_info_df.to_excel(self.writer, sheet_name='Sayfa1')
         

@@ -1,13 +1,12 @@
-# Yemeksepeti-checker
-A python program that takes the information of the restaurants in the relevant location and the menu information in those restaurants that you will provide on https://getir.com/yemek/ and transfers them to the postgre database.
+# Eksisözlük-checker
+It is a project created to try selenium to get the entries on the https://eksisozluk.com/ site.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
 
-• scrapy
+• selenium
 • postgre
 • pandas
-• flask
 
 # Setup
 To run this project on your own computer, follow these steps:

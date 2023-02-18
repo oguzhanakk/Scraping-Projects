@@ -1,10 +1,11 @@
-# All-Scrapy-Flask-Projects
-A python program that uses Scrapy to scrape information from multiple websites or applications and transfer it to a PostgreSQL database or send it to relevant individuals through email.
+# All-Scrapy-or-Selenium-Projects
+Repository containing python programs that use Scrapy or selenium to extract information from multiple websites or applications and export it to a PostgreSQL database, send it to relevant people via e-mail, or export it to excel.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
 
 • scrapy
+• selenium
 • postgre
 • pandas
 • flask

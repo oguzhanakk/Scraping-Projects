@@ -1,5 +1,5 @@
-# Cimri-checker
-A python program that scans all pages of https://www.cimri.com/ and transfers finished products to excel and then to postgre database.
+# Cimri-selenium
+It is a python program that, when you give a category name on https://www.cimri.com/, goes to that category and scans all its pages, extracts data such as the relevant date, product name, product price, brand, link, and transfers them to Excel and then to the Postgre database. After connecting to lambda in aws, the log will be up and running.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
