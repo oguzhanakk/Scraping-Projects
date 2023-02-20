@@ -1,6 +1,7 @@
 import scrapy
 import pandas as pd
 from datetime import datetime
+import psycopg2
 
 class CimriSpider(scrapy.Spider):
     number_items_received = -32
@@ -79,5 +80,42 @@ class CimriSpider(scrapy.Spider):
             self.number_items_received += len(product_title)
             self.df = pd.DataFrame(self.csv_data)
             self.df.columns = ["Date","Category_name","Brand","Product_title","Product_price","cimri_link","Real_link"]
-            self.df.to_excel(f"Products_of_{self.category}_{formatted_date}.xlsx")
+            #self.df.to_excel(f"Products_of_{self.category}_{formatted_date}.xlsx")
+            self.postgre_insert(self.df)
+    
+    def postgre_insert(self,all_data):
         
+        conn = None
+        # Connect to the database
+        print("before connection")
+        conn = psycopg2.connect(host='localhost', database='postgres', user='postgres', password='10suzolmaz', port='5432')
+        print("after connection")
+        print("connection is created")
+
+        # Create a cursor object
+        cur = conn.cursor()
+        print("cursor is created")
+        
+        print('all_data:')
+        print(all_data)
+
+        #...
+        # Create table
+        cur.execute(f'''CREATE TABLE {self.category}
+                    (Date text, Category_name text, Brand text, 
+                        Product_title text, Product_price text, cimri_link text, 
+                        Real_link text)''')
+        
+        # Add trends to db
+        for i, row in all_data.iterrows():
+            cur.execute(f"INSERT INTO {self.category} (Date, Category_name, Brand, Product_title, Product_price, cimri_link, Real_link) VALUES (%s, %s, %s, %s, %s, %s, %s)", (row['Date'], row['Category_name'], row['Brand'], row['Product_title'], row['Product_price'], row['cimri_link'], row['Real_link']))
+        print("data is inserted to specified db on postgre sql")
+
+        # Commit the changes to the database
+        conn.commit()
+        print("changes are commited")
+
+        # Close the cursor and connection
+        cur.close()
+        conn.close()
+        print("cursor and connection are closed")
