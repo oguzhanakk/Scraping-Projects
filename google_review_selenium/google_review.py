@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import pandas as pd
+import psycopg2
 
 def try_except_getinfo(browser,length,first_div,second_div,third_div,ahref=1,attribute='href'):
     list = []
@@ -51,7 +52,7 @@ def show_more_and_scroll(browser,scroll_number):
     
     print("show_more_and_scroll is done") #This function is complete
 
-def siteyi_tara(browser,excel_name):
+def scan_the_site(browser):
     
     first_div = '.m6QErb'
     second_div = '.jftiEf.fontBodyMedium'
@@ -83,19 +84,59 @@ def siteyi_tara(browser,excel_name):
     
     df = pd.DataFrame(all_csv)
     df.columns = ["User_Name","User_info","Given_Star","Comment_time","Comment"]
-    df.to_excel(f"{excel_name}.xlsx")  #will change according to the url to be crawled.
     
-    print(f"{excel_name} created.")
+    print('site scan completed')
+    return(df)
+    #df.to_excel(f"{excel_name}.xlsx")  #will change according to the url to be crawled.
+    
+    #print(f"{excel_name} created.")
+    
+def postgre_insert(df, excel_name):
+        
+    conn = None
+    # Connect to the database
+    print("before connection")
+    conn = psycopg2.connect(host='localhost', database='postgres', user='postgres', password='10suzolmaz', port='5432')
+    print("after connection")
+    print("connection is created")
+
+    # Create a cursor object
+    cur = conn.cursor()
+    print("cursor is created")
+    
+    print('df:')
+    print(df)
+
+    #...
+    # Create table
+    cur.execute(f'''CREATE TABLE {excel_name}
+                (User_Name text, User_info text, Given_Star text, 
+                    Comment_time text, Comment text)''')
+    
+    # Add trends to db
+    for i, row in df.iterrows():
+        cur.execute(f"INSERT INTO {excel_name} (User_Name, User_info, Given_Star, Comment_time, Comment) VALUES (%s, %s, %s, %s, %s)", (row['User_Name'], row['User_info'], row['Given_Star'], row['Comment_time'], row['Comment']))
+    print("data is inserted to specified db on postgre sql")
+
+    # Commit the changes to the database
+    conn.commit()
+    print("changes are commited")
+
+    # Close the cursor and connection
+    cur.close()
+    conn.close()
+    print("cursor and connection are closed")
 
 def main():
     
     browser = webdriver.Chrome()
+    browser.maximize_window()
     
     #Can change to the link,scroll_number,excel_name
     #75 scroll ends 679 comments.Each scroll is like 10 comments.
     links = ["https://www.google.com/maps/place/Domino's+Pizza/@24.7927019,54.4386021,9z/data=!4m8!3m7!1s0x3e5f5b95260a5bfd:0xcdcff17606bf5004!8m2!3d25.3258811!4d55.3798685!9m1!1b1!16s%2Fg%2F1hc7h4hld"]
     scroll_numbers = [200]
-    excel_name = ["Buhaira_Oasis _Tower_Sharjah_Dominos"]
+    excel_name = ["Buhaira_Oasis_Tower_Sharjah_Dominos"]
     
     for i in range(0,len(links)):
         browser.get(links[i])
@@ -103,7 +144,9 @@ def main():
 
         show_more_and_scroll(browser,scroll_numbers[i])
         time.sleep(1)
-        siteyi_tara(browser,excel_name[i])
+        df = scan_the_site(browser)
+        
+        postgre_insert(df,excel_name[i])
         
         time.sleep(3)
     
