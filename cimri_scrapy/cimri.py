@@ -6,83 +6,134 @@ import psycopg2
 class CimriSpider(scrapy.Spider):
     number_items_received = -32
     name = 'cimri'
+    
+    #start_urls = ['https://www.cimri.com/elektronik','https://www.cimri.com/ev-yasam-ofis-kirtasiye',
+    #                'https://www.cimri.com/anne-bebek-oyuncak','https://www.cimri.com/saat-moda-taki',
+    #                'https://www.cimri.com/kitap-muzik-hobi','https://www.cimri.com/spor-outdoor']
+    
+    all_data = []
+    category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
+                ]
+    #'ev-yasam-ofis-kirtasiye','anne-bebek-oyuncak','saat-moda-taki','kitap-muzik-hobi','spor-outdoor',
+    #            'saglik-bakim-kozmetik','oto-bahce-yapi-market','pet'
+    category_number = 0
     start_category = 1
     
-    category = str(input("""
-                         Type the category to be scanned.
-                         Categories
-                         ************
-                         (gida,sut-ve-kahvaltilik,meyve-ve-sebze,icecek,et-tavuk-ve-balik,deterjan-ve-temizlik-urunleri)
-                         : """))
-    
-    start_urls = [f'https://www.cimri.com/market/{category}?page={start_category}']
-    
-    csv_data = []
+    #start_urls = ['https://www.cimri.com/elektronik?page=30']
+    start_urls = [f'https://www.cimri.com/{category[category_number]}?page={start_category}']
 
     def parse(self, response):
         current_day = datetime.now()
         formatted_date = current_day.strftime("%d.%m.%Y")
 
-        category_name = self.category
-        product_title = response.css(".ProductCard_productName__35zi5 p::text").extract()
-        product_price = response.css('.ProductCard_footer__Fc9OL .ProductCard_price__10UHp::text').extract()
-        """
-        product_price = response.css(".ProductCard_price__10UHp::text").extract()
-        # Some pages do not write the product price, and the slippage was checked on the pages that do not write the product price.
-        if(len(product_price) == 64):
-            product_price = [elem for i, elem in enumerate(product_price) if i == 0 or i == len(product_title) - 1 or i % 2 == 0]
-        else:
-            # Repetitive products were reduced to one.
-            product_price2 = []
-            previous = product_price[0]
-            product_price2.append(previous)
-            for item in product_price[1:]:
-                if item != previous:
-                    product_price2.append(item)
-                previous = item
-            product_price.clear()
-            product_price.extend(product_price2)
-        """
-            
-        brand = response.css(".WrapperBox_small__VfD9r img").xpath("@alt").extract()
-        brand = [i for i in brand if i != '']
-        brand = [elem for i, elem in enumerate(brand) if i < 4 or i % 2 == 0]
+        link_unregulated = response.css('.z7ntrt-0.brVBIc.s1a29zcm-7.bnaxiu a::attr(href)').extract() #96 tane düzenlenmeli
+        main_link_unset = [s for s in link_unregulated if s.startswith('/')]
+        main_link = list(set(main_link_unset))
+        main_link = list(map(lambda x: 'https://www.cimri.com' + x, main_link))
         
-        # Getting the product link and the real link
-        links = response.css("div.ProductCard_productCard__412iI a::attr(href)").extract()
-        cimri_link = []
-        real_link = []
-        # Parsing all links as cimri and real links
-        for i, item in enumerate(links):
-            if i % 2 == 0:
-                cimri_link.append('https://www.cimri.com'+item)
-            else:
-                real_link.append(item)
-        # Exporting all products on the page to csv_data
-        print(len(brand),len(product_title),len(product_price),len(cimri_link),len(real_link))
-        for i in range(0,len(product_title)):
-            self.csv_data.append([formatted_date,category_name,brand[i],product_title[i],product_price[i],cimri_link[i],real_link[i]])
+        title = response.css('.s1cegxbo-1.cACjAF a::attr(title)').extract() #32 tane
+        
+        """
+        offer_link_unregulated = response.css('.bnaxiu .top-offers a::attr(href)').extract() #64 tane 2ser 2 ser al
+        first_offer_link = offer_link_unregulated[0::2]
+        second_offer_link = offer_link_unregulated[1::2]
+        """
+        
+        first_offer_link = []
+        second_offer_link = []
+        for i in range(0,32):
+            for j in range(0,2):
+                try:
+                    offer_link_unregulated = response.css('.bnaxiu')[i].css('.top-offers a::attr(href)')[j].extract()
+                    if(j==0):
+                        first_offer_link.append(offer_link_unregulated)
+                    else:
+                        second_offer_link.append(offer_link_unregulated)
+                except:
+                    if(j==0):
+                        first_offer_link.append('None')
+                    else:
+                        second_offer_link.append('None')
+
+        """
+        offer_name_unregulated = response.css('.bnaxiu .tag::text').extract() #64 tane 2ser 2 ser al
+        first_offer_name = offer_name_unregulated[0::2]
+        second_offer_name = offer_name_unregulated[1::2]
+        """
+        
+        first_offer_name = []
+        second_offer_name = []
+        for i in range(0,32):
+            for j in range(0,2):
+                try:
+                    offer_name_unregulated = response.css('.bnaxiu')[i].css('.tag::text')[j].extract()
+                    if(j==0):
+                        first_offer_name.append(offer_name_unregulated)
+                    else:
+                        second_offer_name.append(offer_name_unregulated)
+                except:
+                    if(j==0):
+                        first_offer_name.append('None')
+                    else:
+                        second_offer_name.append('None')
+
+        first_offer_value = []
+        second_offer_value = []
+        for i in range(0,32):
+            for j in range(0,2):
+                try:
+                    offer_value_unregulated = response.css('.bnaxiu')[i].css('.s14oa9nh-0.lihtyI::text')[j].extract()
+                    if(j==0):
+                        first_offer_value.append(offer_value_unregulated)
+                    else:
+                        second_offer_value.append(offer_value_unregulated)
+                except:
+                    if(j==0):
+                        first_offer_value.append('None')
+                    else:
+                        second_offer_value.append('None')
+        
+        stars = []
+        for i in range(0,32):
+            star_variable = 0
+            for j in range(0,5):
+                try:
+                    star = response.css('.bnaxiu')[i].css('.s1tau8ak-1.fAkmVm img').xpath("@alt")[j].extract()
+                except:
+                    star = 'None'
+                if(star == 'star icon'):
+                    star_variable += 1
+                elif(star == 'half star'):
+                    star_variable += 0.5
+            stars.append(star_variable)
+            
+        for i in range(0,32):
+            #print(len(title),len(main_link),len(stars),len(first_offer_name),len(first_offer_link),len(first_offer_value),len(second_offer_name),len(second_offer_link),len(second_offer_value))
+            self.all_data.append([formatted_date,self.category[self.category_number],title[i],main_link[i],stars[i],first_offer_name[i],first_offer_link[i],first_offer_value[i],second_offer_name[i],second_offer_link[i],second_offer_value[i]])
         
         self.start_category += 1
-        next_page_atistirmalik = f'https://www.cimri.com/market/{self.category}?page={self.start_category}'
-        
-        #We converted the text value of the last button that shows the page numbers below to int.
-        page_number = int(response.css("div.Pagination_pagination__6kvLO li a::text").extract()[-1])
+        next_page = f"https://www.cimri.com/{self.category[self.category_number]}?page={self.start_category}"
         
         # The yield part until all pages are finished
-        if(self.start_category <= page_number):
+        if(self.start_category < 51):
             self.number_items_received += 32
-            print('Number of products taken from this Page:',len(self.csv_data)-self.number_items_received)
-            print('Total number of lines:',len(self.csv_data))
-            yield response.follow(url = next_page_atistirmalik, callback = self.parse, dont_filter=True)
+            print('Number of products taken from this Page:',len(self.all_data)-self.number_items_received)
+            print('Total number of lines:',len(self.all_data))
+            yield response.follow(url = next_page, callback = self.parse, dont_filter=True)
+        elif(self.category_number < len(self.category)-1):
+            print(f"{self.category_number}. kategorimiz tamamlanmistir.")
+            self.start_category = 1
+            self.category_number += 1
+            yield response.follow(url = next_page, callback = self.parse, dont_filter=True) 
         else:
             # Exporting csv_data to excel when all pages are finished
-            self.number_items_received += len(product_title)
-            self.df = pd.DataFrame(self.csv_data)
-            self.df.columns = ["Date","Category_name","Brand","Product_title","Product_price","cimri_link","Real_link"]
+            self.df = pd.DataFrame(self.all_data)
+            self.df.columns = ["Date","Category_name","Title","Link","Stars","First_offer_name","First_offer_link","First_offer_value","Second_offer_name","Second_offer_link","Second_offer_value"]
             #self.df.to_excel(f"Products_of_{self.category}_{formatted_date}.xlsx")
             self.postgre_insert(self.df)
-    
+            
+        
+
     def postgre_insert(self,all_data):
         
         conn = None
@@ -101,14 +152,14 @@ class CimriSpider(scrapy.Spider):
 
         #...
         # Create table
-        cur.execute(f'''CREATE TABLE {self.category}
-                    (Date text, Category_name text, Brand text, 
-                        Product_title text, Product_price text, cimri_link text, 
-                        Real_link text)''')
-        
+        cur.execute(f'''CREATE TABLE IF NOT EXISTS Cimri
+                (Date text, Category_name text, Title text, Link text, 
+                    Stars text, First_Offer_name text, First_offer_link text, First_offer_value text,
+                    Second_offer_name text, Second_offer_link text, Second_offer_value text)''')
+
         # Add trends to db
         for i, row in all_data.iterrows():
-            cur.execute(f"INSERT INTO {self.category} (Date, Category_name, Brand, Product_title, Product_price, cimri_link, Real_link) VALUES (%s, %s, %s, %s, %s, %s, %s)", (row['Date'], row['Category_name'], row['Brand'], row['Product_title'], row['Product_price'], row['cimri_link'], row['Real_link']))
+            cur.execute(f"INSERT INTO Cimri (Date, Category_name, Title, Link, Stars, First_Offer_name, First_offer_link, First_offer_value, Second_offer_name, Second_offer_link, Second_offer_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row['Date'],row['Category_name'] , row['Title'], row['Link'], row['Stars'], row['First_offer_name'], row['First_offer_link'], row['First_offer_value'], row['Second_offer_name'], row['Second_offer_link'], row['Second_offer_value']))
         print("data is inserted to specified db on postgre sql")
 
         # Commit the changes to the database
