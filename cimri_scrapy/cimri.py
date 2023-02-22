@@ -2,20 +2,42 @@ import scrapy
 import pandas as pd
 from datetime import datetime
 import psycopg2
+import csv, os, json
+from dotenv import load_dotenv
+import subprocess
+print('Packages are imported')
+
+load_dotenv()
+CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
+CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
+
+HOST = os.environ.get("DB_HOST")
+DATABASE = os.environ.get("DB_DATABASE")
+USER = os.environ.get("DB_USER")
+PASSWORD = os.environ.get("DB_PASSWORD")
+PORT = os.environ.get("DB_PORT")
+SCHEMA = os.environ.get("DB_SCHEMA")
+TABLE = os.environ.get("DB_TABLE")
 
 class CimriSpider(scrapy.Spider):
     number_items_received = -32
     name = 'cimri'
     
-    #start_urls = ['https://www.cimri.com/elektronik','https://www.cimri.com/ev-yasam-ofis-kirtasiye',
-    #                'https://www.cimri.com/anne-bebek-oyuncak','https://www.cimri.com/saat-moda-taki',
-    #                'https://www.cimri.com/kitap-muzik-hobi','https://www.cimri.com/spor-outdoor']
+    #start_urls = ['https://www.cimri.com/elektronik','https://www.cimri.com/ev-yasam-ofis-kirtasiye']
     
     all_data = []
     category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
-                ]
-    #'ev-yasam-ofis-kirtasiye','anne-bebek-oyuncak','saat-moda-taki','kitap-muzik-hobi','spor-outdoor',
-    #            'saglik-bakim-kozmetik','oto-bahce-yapi-market','pet'
+                'ev-yasam-ofis-kirtasiye','mobilya-dekorasyon','banyo-aksesuarlari','elektrik-ve-aydinlatma','ofis-malzemeleri','ev-tekstili','elektrikli-mutfak-aletleri','mutfak-gerecleri','ofis-kirtasiye',
+                'anne-bebek-oyuncak','anne-bebek','bebek-beslenme-gerecleri','bebek-bezi-alt-acma','ana-kucagi-ve-oto-koltugu','bebek-giyim-tekstil','bebek-bakim','bebek-odasi-tekstili','oyuncak',
+                'saat-moda-taki','kadin-giyim','kiz-cocuk-giyim-ve-ic-giyim','ayakkabilar-ve-cantalar','saat','erkek-giyim','bebek-giyim-tekstil','altin-taki-aksesuar','gunes-gozlukleri',
+                'kitap-muzik-hobi','kitaplar','oyun-hobi','edebiyat','akademik','oyun-hobi','muzik-aletleri','egitim','kisisel-gelisim-ve-psikoloji',
+                'spor-outdoor','giyim-outdoor','paten-kaykay-scooter','kamp-malzemeleri','bisikletler','diger-spor-urunleri','balikcilik-malzemeleri','fitness-kondisyon-urunleri','ayakkabilar-ve-cantalar',
+                'saglik-bakim-kozmetik','kisisel-bakim-gerecleri','erkek-tiras-urunleri','sac-bakimi','cilt-ve-yuz-bakimi','parfumler','agiz-ve-dis-sagligi','gunes-urunleri','makyaj-urunleri',
+                'oto-bahce-yapi-market','araba-motorsiklet-aksesuari','elektrikli-el-aletleri','oto-elektronigi','banyo-aksesuarlari','bahce-dekorasyon-duzenleme','elektrik-ve-aydinlatma','motorsiklet-aksesuarlari','isitma-sogutma',
+                'pet','kedi','kopek','balik-akvaryum','kus','kemirgen-surungen']
+    
     category_number = 0
     start_category = 1
     
@@ -139,7 +161,7 @@ class CimriSpider(scrapy.Spider):
         conn = None
         # Connect to the database
         print("before connection")
-        conn = psycopg2.connect(host='localhost', database='postgres', user='postgres', password='10suzolmaz', port='5432')
+        conn = psycopg2.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD, port=PORT)
         print("after connection")
         print("connection is created")
 
@@ -152,14 +174,14 @@ class CimriSpider(scrapy.Spider):
 
         #...
         # Create table
-        cur.execute(f'''CREATE TABLE IF NOT EXISTS Cimri
+        cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
                 (Date text, Category_name text, Title text, Link text, 
                     Stars text, First_Offer_name text, First_offer_link text, First_offer_value text,
                     Second_offer_name text, Second_offer_link text, Second_offer_value text)''')
 
         # Add trends to db
         for i, row in all_data.iterrows():
-            cur.execute(f"INSERT INTO Cimri (Date, Category_name, Title, Link, Stars, First_Offer_name, First_offer_link, First_offer_value, Second_offer_name, Second_offer_link, Second_offer_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row['Date'],row['Category_name'] , row['Title'], row['Link'], row['Stars'], row['First_offer_name'], row['First_offer_link'], row['First_offer_value'], row['Second_offer_name'], row['Second_offer_link'], row['Second_offer_value']))
+            cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Date, Category_name, Title, Link, Stars, First_Offer_name, First_offer_link, First_offer_value, Second_offer_name, Second_offer_link, Second_offer_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row['Date'],row['Category_name'] , row['Title'], row['Link'], row['Stars'], row['First_offer_name'], row['First_offer_link'], row['First_offer_value'], row['Second_offer_name'], row['Second_offer_link'], row['Second_offer_value']))
         print("data is inserted to specified db on postgre sql")
 
         # Commit the changes to the database
