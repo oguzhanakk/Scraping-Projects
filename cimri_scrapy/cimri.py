@@ -22,36 +22,41 @@ class CimriSpider(scrapy.Spider):
     
     #start_urls = ['https://www.cimri.com/elektronik','https://www.cimri.com/ev-yasam-ofis-kirtasiye']
     
+    input = input('What should we scan on cimri.com? : ')
+    
     all_data = []
-    category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
-                'ev-yasam-ofis-kirtasiye','mobilya-dekorasyon','banyo-aksesuarlari','elektrik-ve-aydinlatma','ofis-malzemeleri','ev-tekstili','elektrikli-mutfak-aletleri','mutfak-gerecleri','ofis-kirtasiye',
-                'anne-bebek-oyuncak','anne-bebek','bebek-beslenme-gerecleri','bebek-bezi-alt-acma','ana-kucagi-ve-oto-koltugu','bebek-giyim-tekstil','bebek-bakim','bebek-odasi-tekstili','oyuncak',
-                'saat-moda-taki','kadin-giyim','kiz-cocuk-giyim-ve-ic-giyim','ayakkabilar-ve-cantalar','saat','erkek-giyim','bebek-giyim-tekstil','altin-taki-aksesuar','gunes-gozlukleri',
-                'kitap-muzik-hobi','kitaplar','oyun-hobi','edebiyat','akademik','oyun-hobi','muzik-aletleri','egitim','kisisel-gelisim-ve-psikoloji',
-                'spor-outdoor','giyim-outdoor','paten-kaykay-scooter','kamp-malzemeleri','bisikletler','diger-spor-urunleri','balikcilik-malzemeleri','fitness-kondisyon-urunleri','ayakkabilar-ve-cantalar',
-                'saglik-bakim-kozmetik','kisisel-bakim-gerecleri','erkek-tiras-urunleri','sac-bakimi','cilt-ve-yuz-bakimi','parfumler','agiz-ve-dis-sagligi','gunes-urunleri','makyaj-urunleri',
-                'oto-bahce-yapi-market','araba-motorsiklet-aksesuari','elektrikli-el-aletleri','oto-elektronigi','banyo-aksesuarlari','bahce-dekorasyon-duzenleme','elektrik-ve-aydinlatma','motorsiklet-aksesuarlari','isitma-sogutma',
-                'pet','kedi','kopek','balik-akvaryum','kus','kemirgen-surungen']
+    if(input == 'None'):
+        category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
+                    'ev-yasam-ofis-kirtasiye','mobilya-dekorasyon','banyo-aksesuarlari','elektrik-ve-aydinlatma','ofis-malzemeleri','ev-tekstili','elektrikli-mutfak-aletleri','mutfak-gerecleri','ofis-kirtasiye',
+                    'anne-bebek-oyuncak','anne-bebek','bebek-beslenme-gerecleri','bebek-bezi-alt-acma','ana-kucagi-ve-oto-koltugu','bebek-giyim-tekstil','bebek-bakim','bebek-odasi-tekstili','oyuncak',
+                    'saat-moda-taki','kadin-giyim','kiz-cocuk-giyim-ve-ic-giyim','ayakkabilar-ve-cantalar','saat','erkek-giyim','bebek-giyim-tekstil','altin-taki-aksesuar','gunes-gozlukleri',
+                    'kitap-muzik-hobi','kitaplar','oyun-hobi','edebiyat','akademik','oyun-hobi','muzik-aletleri','egitim','kisisel-gelisim-ve-psikoloji',
+                    'spor-outdoor','giyim-outdoor','paten-kaykay-scooter','kamp-malzemeleri','bisikletler','diger-spor-urunleri','balikcilik-malzemeleri','fitness-kondisyon-urunleri','ayakkabilar-ve-cantalar',
+                    'saglik-bakim-kozmetik','kisisel-bakim-gerecleri','erkek-tiras-urunleri','sac-bakimi','cilt-ve-yuz-bakimi','parfumler','agiz-ve-dis-sagligi','gunes-urunleri','makyaj-urunleri',
+                    'oto-bahce-yapi-market','araba-motorsiklet-aksesuari','elektrikli-el-aletleri','oto-elektronigi','banyo-aksesuarlari','bahce-dekorasyon-duzenleme','elektrik-ve-aydinlatma','motorsiklet-aksesuarlari','isitma-sogutma',
+                    'pet','kedi','kopek','balik-akvaryum','kus','kemirgen-surungen']
+    else:
+        category = [f"{input}"]
     
     category_number = 0
     start_category = 1
     
     #start_urls = ['https://www.cimri.com/elektronik?page=30']
     start_urls = [f'https://www.cimri.com/{category[category_number]}?page={start_category}']
-
+         
     def parse(self, response):
         current_day = datetime.now()
         formatted_date = current_day.strftime("%d.%m.%Y")
 
-        link_unregulated = response.css('.z7ntrt-0.brVBIc.s1a29zcm-7.bnaxiu a::attr(href)').extract() #96 tane düzenlenmeli
+        link_unregulated = response.css('.z7ntrt-0.brVBIc.s1a29zcm-7.bnaxiu a::attr(href)').extract() #96 grains
         main_link_unset = [s for s in link_unregulated if s.startswith('/')]
         main_link = list(set(main_link_unset))
         main_link = list(map(lambda x: 'https://www.cimri.com' + x, main_link))
         
-        title = response.css('.s1cegxbo-1.cACjAF a::attr(title)').extract() #32 tane
+        title = response.css('.s1cegxbo-1.cACjAF a::attr(title)').extract() #32 grains
         
         """
-        offer_link_unregulated = response.css('.bnaxiu .top-offers a::attr(href)').extract() #64 tane 2ser 2 ser al
+        offer_link_unregulated = response.css('.bnaxiu .top-offers a::attr(href)').extract() #64 grains
         first_offer_link = offer_link_unregulated[0::2]
         second_offer_link = offer_link_unregulated[1::2]
         """
@@ -73,7 +78,7 @@ class CimriSpider(scrapy.Spider):
                         second_offer_link.append('None')
 
         """
-        offer_name_unregulated = response.css('.bnaxiu .tag::text').extract() #64 tane 2ser 2 ser al
+        offer_name_unregulated = response.css('.bnaxiu .tag::text').extract() #64 grains
         first_offer_name = offer_name_unregulated[0::2]
         second_offer_name = offer_name_unregulated[1::2]
         """
@@ -138,7 +143,7 @@ class CimriSpider(scrapy.Spider):
             print('Total number of lines:',len(self.all_data))
             yield response.follow(url = next_page, callback = self.parse, dont_filter=True)
         elif(self.category_number < len(self.category)-1):
-            print(f"{self.category_number}. kategorimiz tamamlanmistir.")
+            print(f"Our {self.category_number}. category has been completed.")
             self.start_category = 1
             self.category_number += 1
             yield response.follow(url = next_page, callback = self.parse, dont_filter=True) 
