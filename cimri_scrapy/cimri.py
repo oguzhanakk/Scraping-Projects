@@ -8,11 +8,6 @@ import subprocess
 print('Packages are imported')
 
 load_dotenv()
-CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
-CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
-
 HOST = os.environ.get("DB_HOST")
 DATABASE = os.environ.get("DB_DATABASE")
 USER = os.environ.get("DB_USER")
@@ -154,8 +149,6 @@ class CimriSpider(scrapy.Spider):
             #self.df.to_excel(f"Products_of_{self.category}_{formatted_date}.xlsx")
             self.postgre_insert(self.df)
             
-        
-
     def postgre_insert(self,all_data):
         
         conn = None
