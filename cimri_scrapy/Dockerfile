@@ -1,18 +1,16 @@
-FROM python:3.8-slim-buster
-# install git
+FROM amazon/aws-lambda-python:3.9
+
 ENV PYTHONUNBUFFERED True
-#RUN --memory 4g <command>
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+# install yum
+RUN yum -y install tar
+RUN yum -y install gzip
 
+ENV APP_HOME /app
+WORKDIR $APP_HOME
+COPY . ./
 
-COPY . /opt/app
-WORKDIR /opt/app
 RUN pip install -r requirements.txt
-#/&& pip install virtualenv 
-#virtualenv venv
-#source venv/bin/activate
-# gunicorn -b 0.0.0.0:8080 --timeout 0 main_crochet:app
-# ENTRYPOINT gunicorn --bind :8080 --timeout 0 main_crochet:app
+#RUN pip install --target "./package" --no-cache-dir -r requirements.txt
+
+# CMD exec gunicorn --bind :8080 --timeout 0 main:app

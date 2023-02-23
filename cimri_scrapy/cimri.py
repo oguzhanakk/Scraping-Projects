@@ -16,33 +16,40 @@ PORT = os.environ.get("DB_PORT")
 SCHEMA = os.environ.get("DB_SCHEMA")
 TABLE = os.environ.get("DB_TABLE")
 
+print('Environment variables are imported')
+
 class CimriSpider(scrapy.Spider):
     number_items_received = -32
     name = 'cimri'
     
-    #start_urls = ['https://www.cimri.com/elektronik','https://www.cimri.com/ev-yasam-ofis-kirtasiye']
+    def __init__(self, page, *args, **kwargs):
+        super(CimriSpider, self).__init__(*args, **kwargs)
+        self.page = page
+        self.generally()
     
-    input = input('What should we scan on cimri.com? : ')
-    
-    all_data = []
-    if(input == 'None'):
-        category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
-                    'ev-yasam-ofis-kirtasiye','mobilya-dekorasyon','banyo-aksesuarlari','elektrik-ve-aydinlatma','ofis-malzemeleri','ev-tekstili','elektrikli-mutfak-aletleri','mutfak-gerecleri','ofis-kirtasiye',
-                    'anne-bebek-oyuncak','anne-bebek','bebek-beslenme-gerecleri','bebek-bezi-alt-acma','ana-kucagi-ve-oto-koltugu','bebek-giyim-tekstil','bebek-bakim','bebek-odasi-tekstili','oyuncak',
-                    'saat-moda-taki','kadin-giyim','kiz-cocuk-giyim-ve-ic-giyim','ayakkabilar-ve-cantalar','saat','erkek-giyim','bebek-giyim-tekstil','altin-taki-aksesuar','gunes-gozlukleri',
-                    'kitap-muzik-hobi','kitaplar','oyun-hobi','edebiyat','akademik','oyun-hobi','muzik-aletleri','egitim','kisisel-gelisim-ve-psikoloji',
-                    'spor-outdoor','giyim-outdoor','paten-kaykay-scooter','kamp-malzemeleri','bisikletler','diger-spor-urunleri','balikcilik-malzemeleri','fitness-kondisyon-urunleri','ayakkabilar-ve-cantalar',
-                    'saglik-bakim-kozmetik','kisisel-bakim-gerecleri','erkek-tiras-urunleri','sac-bakimi','cilt-ve-yuz-bakimi','parfumler','agiz-ve-dis-sagligi','gunes-urunleri','makyaj-urunleri',
-                    'oto-bahce-yapi-market','araba-motorsiklet-aksesuari','elektrikli-el-aletleri','oto-elektronigi','banyo-aksesuarlari','bahce-dekorasyon-duzenleme','elektrik-ve-aydinlatma','motorsiklet-aksesuarlari','isitma-sogutma',
-                    'pet','kedi','kopek','balik-akvaryum','kus','kemirgen-surungen']
-    else:
-        category = [f"{input}"]
-    
-    category_number = 0
-    start_category = 1
+    def generally(self):
+        #self.input = input('What should we scan on cimri.com? : ')
+        
+        self.all_data = []
+        if(self.page == 'None'):
+            self.category = ['elektronik','cep-telefonu','beyaz-esya','isitma-sogutma','elektrikli-mutfak-aletleri','goruntu-sistemleri','bilgisayar-yazilimlar','kucuk-ev-aletleri','fotograf-kamera',
+                        'ev-yasam-ofis-kirtasiye','mobilya-dekorasyon','banyo-aksesuarlari','elektrik-ve-aydinlatma','ofis-malzemeleri','ev-tekstili','elektrikli-mutfak-aletleri','mutfak-gerecleri','ofis-kirtasiye',
+                        'anne-bebek-oyuncak','anne-bebek','bebek-beslenme-gerecleri','bebek-bezi-alt-acma','ana-kucagi-ve-oto-koltugu','bebek-giyim-tekstil','bebek-bakim','bebek-odasi-tekstili','oyuncak',
+                        'saat-moda-taki','kadin-giyim','kiz-cocuk-giyim-ve-ic-giyim','ayakkabilar-ve-cantalar','saat','erkek-giyim','bebek-giyim-tekstil','altin-taki-aksesuar','gunes-gozlukleri',
+                        'kitap-muzik-hobi','kitaplar','oyun-hobi','edebiyat','akademik','oyun-hobi','muzik-aletleri','egitim','kisisel-gelisim-ve-psikoloji',
+                        'spor-outdoor','giyim-outdoor','paten-kaykay-scooter','kamp-malzemeleri','bisikletler','diger-spor-urunleri','balikcilik-malzemeleri','fitness-kondisyon-urunleri','ayakkabilar-ve-cantalar',
+                        'saglik-bakim-kozmetik','kisisel-bakim-gerecleri','erkek-tiras-urunleri','sac-bakimi','cilt-ve-yuz-bakimi','parfumler','agiz-ve-dis-sagligi','gunes-urunleri','makyaj-urunleri',
+                        'oto-bahce-yapi-market','araba-motorsiklet-aksesuari','elektrikli-el-aletleri','oto-elektronigi','banyo-aksesuarlari','bahce-dekorasyon-duzenleme','elektrik-ve-aydinlatma','motorsiklet-aksesuarlari','isitma-sogutma',
+                        'pet','kedi','kopek','balik-akvaryum','kus','kemirgen-surungen']
+        else:
+            self.category = [f"{self.page}"]
+        
+        self.category_number = 0
+        self.start_category = 1
+        self.product_index = 1
     
     #start_urls = ['https://www.cimri.com/elektronik?page=30']
-    start_urls = [f'https://www.cimri.com/{category[category_number]}?page={start_category}']
+        self.start_urls = [f'https://www.cimri.com/{self.category[self.category_number]}?page={self.start_category}']
          
     def parse(self, response):
         current_day = datetime.now()
@@ -61,6 +68,8 @@ class CimriSpider(scrapy.Spider):
         second_offer_link = offer_link_unregulated[1::2]
         """
         
+        #we do not use
+        """
         first_offer_link = []
         second_offer_link = []
         for i in range(0,32):
@@ -76,6 +85,7 @@ class CimriSpider(scrapy.Spider):
                         first_offer_link.append('None')
                     else:
                         second_offer_link.append('None')
+        """
 
         """
         offer_name_unregulated = response.css('.bnaxiu .tag::text').extract() #64 grains
@@ -131,7 +141,9 @@ class CimriSpider(scrapy.Spider):
             
         for i in range(0,32):
             #print(len(title),len(main_link),len(stars),len(first_offer_name),len(first_offer_link),len(first_offer_value),len(second_offer_name),len(second_offer_link),len(second_offer_value))
-            self.all_data.append([formatted_date,self.category[self.category_number],title[i],main_link[i],stars[i],first_offer_name[i],first_offer_link[i],first_offer_value[i],second_offer_name[i],second_offer_link[i],second_offer_value[i]])
+            self.all_data.append([self.product_index,self.category[self.category_number],title[i],main_link[i],stars[i],first_offer_name[i],first_offer_value[i],second_offer_name[i],second_offer_value[i],formatted_date])
+            self.product_index += 1
+        self.product_index = 1
         
         self.start_category += 1
         next_page = f"https://www.cimri.com/{self.category[self.category_number]}?page={self.start_category}"
@@ -143,17 +155,20 @@ class CimriSpider(scrapy.Spider):
             print('Total number of lines:',len(self.all_data))
             yield response.follow(url = next_page, callback = self.parse, dont_filter=True)
         elif(self.category_number < len(self.category)-1):
-            print(f"Our {self.category_number}. category has been completed.")
+            print(f"Our {self.category_number+1}. category has been completed.")
             self.start_category = 1
             self.category_number += 1
             yield response.follow(url = next_page, callback = self.parse, dont_filter=True) 
         else:
             # Exporting csv_data to excel when all pages are finished
             self.df = pd.DataFrame(self.all_data)
-            self.df.columns = ["Date","Category_name","Title","Link","Stars","First_offer_name","First_offer_link","First_offer_value","Second_offer_name","Second_offer_link","Second_offer_value"]
+            self.df.columns = ["Product_index","Category_name","Title","Link","Stars","First_offer_name","First_offer_value","Second_offer_name","Second_offer_value","Date"]
+            print(self.df)
             #self.df.to_excel(f"Products_of_{self.category}_{formatted_date}.xlsx")
             self.postgre_insert(self.df)
             
+        
+
     def postgre_insert(self,all_data):
         
         conn = None
@@ -170,16 +185,18 @@ class CimriSpider(scrapy.Spider):
         print('all_data:')
         print(all_data)
 
-        #...
+        # Create schema if not exists
+        cur.execute(f'''CREATE SCHEMA IF NOT EXISTS {SCHEMA}''')
+        
         # Create table
         cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
-                (Date text, Category_name text, Title text, Link text, 
-                    Stars text, First_Offer_name text, First_offer_link text, First_offer_value text,
-                    Second_offer_name text, Second_offer_link text, Second_offer_value text)''')
+                (Product_index, Category_name text, Title text, Link text, 
+                    Stars text, First_Offer_name text, First_offer_value text,
+                    Second_offer_name text, Second_offer_value text, Date text)''')
 
         # Add trends to db
         for i, row in all_data.iterrows():
-            cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Date, Category_name, Title, Link, Stars, First_Offer_name, First_offer_link, First_offer_value, Second_offer_name, Second_offer_link, Second_offer_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row['Date'],row['Category_name'] , row['Title'], row['Link'], row['Stars'], row['First_offer_name'], row['First_offer_link'], row['First_offer_value'], row['Second_offer_name'], row['Second_offer_link'], row['Second_offer_value']))
+            cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Product_index, Category_name, Title, Link, Stars, First_Offer_name, First_offer_value, Second_offer_name, Second_offer_value, Date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row['Product_index'], row['Category_name'], row['Title'], row['Link'], row['Stars'], row['First_offer_name'], row['First_offer_value'], row['Second_offer_name'], row['Second_offer_value'], row['Date']))
         print("data is inserted to specified db on postgre sql")
 
         # Commit the changes to the database
