@@ -34,3 +34,4 @@ if response1.status_code == 200 and response2.status_code == 200:
 
 else:
     print(f"API Request Failed with status code: {response1.status_code}, {response2.status_code}")
+    

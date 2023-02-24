@@ -1,12 +1,8 @@
-# TikTok-selenium
-A python program that takes 4 different category data of tiktok application via Tiktok and ads.TikTok and transfers them to the relevant database. The program works with Selenium.
+# TikTok-request
+A python program for transferring the data of 4 different categories of Tiktok application to the database with postgre after parsing them by requesting the data that we can reach via network via Tiktok and Tiktok.ads.
 
 # Requirements
-To run this project, you will need to have the following software requirements:
-
-• selenium
-• postgre
-• pandas
+To run this project, you will need to have the following software requirements.
 
 # Setup
 To run this project on your own computer, follow these steps:
