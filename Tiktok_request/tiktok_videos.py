@@ -3,7 +3,6 @@ import requests
 url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/list'
 params1 = {'period': '7', 'page': '1', 'limit': '50', 'order_by': 'vv', 'country_code': 'TR'}
 params2 = {'period': '7', 'page': '2', 'limit': '50', 'order_by': 'vv', 'country_code': 'TR'}
-#params2 = {'page': '2', 'limit': '50', 'sort_by': 'follower', 'creator_country': 'TR', 'audience_country': 'TR'}
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
 
 # API'den veri çekme işlemi
@@ -34,4 +33,3 @@ if response1.status_code == 200 and response2.status_code == 200:
 
 else:
     print(f"API Request Failed with status code: {response1.status_code}, {response2.status_code}")
-    

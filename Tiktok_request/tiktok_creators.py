@@ -43,30 +43,5 @@ if response1.status_code == 200 and response2.status_code == 200:
             video_date = datetime.datetime.fromtimestamp(item['create_time']).strftime("%Y-%m-%d %H:%M:%S")
             videos_information.append([video_date, item['tt_link'], item['vv'], item['liked_cnt']])
 
-        creators_information.append([
-            index,
-            creator['nick_name'],
-            creator['tt_link'],
-            creator['tcm_link'],
-            creator['follower_cnt'],
-            creator['liked_cnt'],
-            videos_information
+        creators_information.append([index,creator['nick_name'],creator['tt_link'],creator['tcm_link'],creator['follower_cnt'],creator['liked_cnt'],videos_information
         ])
-
-    # Sonuçları yazdırma
-    for creator in creators_information:
-        print(f"Index: {creator[0]}")
-        print(f"Nick Name: {creator[1]}")
-        print(f"TikTok Link: {creator[2]}")
-        print(f"Marketplace Link: {creator[3]}")
-        print(f"Follower Count: {creator[4]}")
-        print(f"Liked Count: {creator[5]}")
-        print("Videos Information:")
-        for video in creator[6]:
-            print(f"\tDate: {video[0]}")
-            print(f"\tVideo Link: {video[1]}")
-            print(f"\tVideo View: {video[2]}")
-            print(f"\tVideo Like: {video[3]}\n")
-else:
-    print(f"API Request Failed with status code: {response1.status_code}, {response2.status_code}")
-    
