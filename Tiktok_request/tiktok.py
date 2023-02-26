@@ -1,8 +1,7 @@
 import requests
 import pandas as pd
 from datetime import datetime
-import psycopg2
-import csv, os, json
+import os
 from dotenv import load_dotenv
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from sqlalchemy import create_engine, inspect
