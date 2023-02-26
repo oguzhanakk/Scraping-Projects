@@ -21,6 +21,7 @@ TABLE1 = os.environ.get("TABLE1")
 TABLE2 = os.environ.get("TABLE2")
 TABLE3 = os.environ.get("TABLE3")
 TABLE4 = os.environ.get("TABLE4")
+USER_AGENT = os.environ.get("USER_AGENT")
 
 today = datetime.today().strftime("%Y-%m-%d")
 def postgre_insert(df, table_name):
@@ -49,7 +50,7 @@ def Hashtags():
     params1 = {'period': '7','page': '1','limit': '50','sort_by': 'popular','country_code': 'TR'}
     params2 = {'period': '7','page': '2','limit': '50','sort_by': 'popular','country_code': 'TR'}
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'User-Agent': USER_AGENT,
         'Accept-Language' : 'en-US,en;q=0.9,tr;q=0.8',
         'Accept' : 'application/json, text/plain, */*',
         'Accept-Encoding' : 'gzip, deflate, br',
@@ -99,7 +100,7 @@ def Songs():
     params1 = {'period': '7','page': '1','limit': '50','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
     params2 = {'period': '7','page': '2','limit': '50','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+        'User-Agent': USER_AGENT,
         'Accept-Language' : 'en-US,en;q=0.9,tr;q=0.8',
         'Accept' : 'application/json, text/plain, */*',
         'Accept-Encoding' : 'gzip, deflate, br',
@@ -142,7 +143,7 @@ def Creators():
     params = {'page': '1', 'limit': '50', 'sort_by': 'follower', 'creator_country': 'TR', 'audience_country': 'TR'}
     params2 = {'page': '2', 'limit': '50', 'sort_by': 'follower', 'creator_country': 'TR', 'audience_country': 'TR'}
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+        'User-Agent': USER_AGENT
     }
 
     # API'den veri çekme işlemi
@@ -181,7 +182,7 @@ def Videos():
     url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/list'
     params1 = {'period': '7', 'page': '1', 'limit': '50', 'order_by': 'vv', 'country_code': 'TR'}
     params2 = {'period': '7', 'page': '2', 'limit': '50', 'order_by': 'vv', 'country_code': 'TR'}
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+    headers = {'User-Agent': USER_AGENT}
 
     # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
