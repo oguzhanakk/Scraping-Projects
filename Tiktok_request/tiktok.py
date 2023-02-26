@@ -5,55 +5,45 @@ import psycopg2
 import csv, os, json
 from dotenv import load_dotenv
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from sqlalchemy import create_engine, inspect
+import sqlalchemy
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 print('Packages are imported')
 print('Packages are imported')
 
 load_dotenv()
-HOST = os.environ.get("DB_HOST")
-DATABASE = os.environ.get("DB_DATABASE")
-USER = os.environ.get("DB_USER")
-PASSWORD = os.environ.get("DB_PASSWORD")
-PORT = os.environ.get("DB_PORT")
-SCHEMA = os.environ.get("DB_SCHEMA")
-TABLE = os.environ.get("DB_TABLE")
+HOST = os.environ.get("HOST")
+DATABASE = os.environ.get("DATABASE")
+USER = os.environ.get("USER")
+PASSWORD = os.environ.get("PASSWORD")
+PORT = os.environ.get("PORT")
+SCHEMA = os.environ.get("SCHEMA")
+TABLE1 = os.environ.get("TABLE1")
+TABLE2 = os.environ.get("TABLE2")
+TABLE3 = os.environ.get("TABLE3")
+TABLE4 = os.environ.get("TABLE4")
 
-def postgre_insert(columns, data):
+today = datetime.today().strftime("%Y-%m-%d")
+def postgre_insert(df, table_name):
+    
+    # Create database connection
+    con_string = f'postgresql://{USER}:{PASSWORD}@{HOST}/{DATABASE}'
+    engine = create_engine(con_string)
+    conn = engine.connect()
+    print('Database connection created.')
+    
+    inspector = inspect(engine)
+    if table_name not in inspector.get_table_names():
+        # If the table does not exist, create the table and load the data
+        df.to_sql(table_name, engine, index=False, dtype={"trend" : sqlalchemy.types.JSON})
+        print('New table created, data loaded.')
+    else:
+        # overwrite existing data if table exists
+        df.to_sql(table_name, engine, if_exists='append', index=False, dtype={"trend" : sqlalchemy.types.JSON})
+        print('Existing data has been added to the existing table.')
         
-    conn = None
-    # Connect to the database
-    print("before connection")
-    conn = psycopg2.connect(host=HOST, database=DATABASE, user=USER, password=PASSWORD, port=PORT)
-    print("after connection")
-    print("connection is created")
-
-    # Create a cursor object
-    cur = conn.cursor()
-    print("cursor is created")
-    
-    print('data:')
-    print(data)
-
-    # Create schema if not exists
-    cur.execute(f'''CREATE SCHEMA IF NOT EXISTS {SCHEMA}''')
-    
-  # Create table
-    cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
-            ({', '.join(columns)})''')
-
-    # Add trends to db
-    for i in data:
-        query = f"INSERT INTO {TABLE} ({', '.join(columns)}) VALUES ({', '.join(['%s']*len(i))})"
-        cur.execute(query, i)
-
-    # Commit the changes to the database
-    conn.commit()
-    print("changes are commited")
-
-    # Close the cursor and connection
-    cur.close()
     conn.close()
-    print("cursor and connection are closed")
+    print('Connection Close.')
 
 def Hashtags():
     url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list'
@@ -83,24 +73,32 @@ def Hashtags():
             for video in data["data"]["list"]:
                 hashtag_name = video["hashtag_name"]
                 country_info = video["country_info"]["id"]
-                industry_info = video.get("industry_info", {}).get("value", "")
-                trend = video["trend"]
-                creators = video.get("creators", "")
-                creators_nicknames = ", ".join([creator["nick_name"] for creator in creators])
-                rank = video.get("rank", "")
-                video_views = video.get("video_views", "")
-                rank_diff = video.get("rank_diff", "")
-                rank_diff_type = video.get("rank_diff_type", "")
+                industry_info = video.get("industry_info", {}).get("value", None)
+                trend_dict = video["trend"]
+                #To convert the dictionary structure to list.
+                trend = []
+                for item in trend_dict:
+                    trend.append([item['time'], item['value']])
+                creators = video.get("creators", None)
+                #For 'NoneType' object is not iterable
+                if creators is not None:
+                    creators_nicknames = ", ".join([creator["nick_name"] for creator in creators])
+                else:
+                    creators_nicknames = None
+                rank = video.get("rank", None)
+                video_views = video.get("video_views", None)
+                rank_diff = video.get("rank_diff", None)
+                rank_diff_type = video.get("rank_diff_type", None)
                 index += 1
-                hashtags_information.append([index, hashtag_name, country_info, industry_info, trend, 
-                                             creators_nicknames, rank, video_views, rank_diff, rank_diff_type])
+                hashtags_information.append([index, hashtag_name, country_info, industry_info, trend, creators_nicknames,
+                                             rank, video_views, rank_diff, rank_diff_type, today])
         
         return(hashtags_information)
     
 def Songs():
     url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/sound/list'
-    params1 = {'period': '7','page': '1','limit': '3','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
-    params2 = {'period': '7','page': '1','limit': '3','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
+    params1 = {'period': '7','page': '1','limit': '50','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
+    params2 = {'period': '7','page': '2','limit': '50','search_mode': '1','rank_type': 'popular','country_code': 'TR'}
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
         'Accept-Language' : 'en-US,en;q=0.9,tr;q=0.8',
@@ -130,9 +128,13 @@ def Songs():
                 rank = song["rank"]
                 rank_diff = song["rank_diff"]
                 rank_diff_type = song["rank_diff_type"]
-                trend = song["trend"]
+                trend_dict = song["trend"]
+                #To convert the dictionary structure to list.
+                trend = []
+                for item in trend_dict:
+                    trend.append([item['time'], item['value']])
                 index += 1
-                songs_information.append([index, author, title, country_code, link, rank, rank_diff, rank_diff_type, trend])
+                songs_information.append([index, author, title, country_code, link, rank, rank_diff, rank_diff_type, trend, today])
                 
         return(songs_information)
     
@@ -168,9 +170,11 @@ def Creators():
                 videos_view = ", ".join([str(item["vv"]) for item in items])
                 videos_liked = ", ".join([str(item["liked_cnt"]) for item in items])
                 videos_create_time = ", ".join([str(item["create_time"]) for item in items])
+                #Converting Unix timestamp to regular timestamp.
+                videos_create_time = ", ".join([datetime.fromtimestamp(item["create_time"]).strftime("%Y-%m-%d %H:%M:%S") for item in items])
                 index += 1
-                creators_information.append([index, nick_name, country_code, follower,like, tiktok_link, 
-                                             marketplace_link, videos_link, videos_view, videos_liked, videos_create_time])
+                creators_information.append([index, nick_name, country_code, follower,like, tiktok_link, marketplace_link,
+                                            videos_link, videos_view, videos_liked, videos_create_time, today])
 
         return(creators_information)
     
@@ -200,7 +204,7 @@ def Videos():
                 region = video["region"]
                 title = video["title"]
                 index += 1
-                videos_information.append([index, country_code, videos_time, video_url, region, title])
+                videos_information.append([index, country_code, videos_time, video_url, region, title, today])
                 
         return(videos_information)
 
@@ -208,29 +212,37 @@ def main():
     
     #Hashtags_page
     Hashtags_list = Hashtags()
+    print('Hashtags page scanned.')
     Hashtags_df = pd.DataFrame(Hashtags_list)
     Hashtags_df.columns = ["Index","Hashtag_name","Country","Industry","Trend","Creators_name","Rank",
-                           "Video_views","Rank_diff","Rank_diff_type"]
-    postgre_insert(Hashtags_df.columns,Hashtags_df)
+                           "Video_views","Rank_diff","Rank_diff_type","Scanned_Date"]
+    postgre_insert(Hashtags_df, TABLE1)
+    print('The hashtags page has been transferred to the database.')
     
     #Songs_page
     Songs_list = Songs()
+    print('Songs page scanned.')
     Songs_df = pd.DataFrame(Songs_list)
-    Songs_df.columns = ["Index","Author","Title","Country","Link","Rank","Rank_diff","Rank_diff_type","Trend"]
-    postgre_insert(Songs_df.columns,Songs_df)
+    Songs_df.columns = ["Index","Author","Title","Country","Link","Rank","Rank_diff","Rank_diff_type","Trend","Scanned_Date"]
+    postgre_insert(Songs_df, TABLE2)
+    print('The songs page has been transferred to the database.')
     
     #Creators_page
     Creators_list = Creators()
+    print('Creators page scanned.')
     Creators_df = pd.DataFrame(Creators_list)
     Creators_df.columns = ["Index","Nick_name","Country","Follower","Like","Tiktok_link","Marketp_link","Videos_link"
-                           ,"Videos_view","Videos_like","Videos_create_time"]
-    postgre_insert(Creators_df.columns,Creators_df)
+                           ,"Videos_view","Videos_like","Videos_create_time","Scanned_Date"]
+    postgre_insert(Creators_df, TABLE3)
+    print('The creators page has been transferred to the database.')
     
     #Videos_page
     Videos_list = Videos()
+    print('Videos page scanned.')
     Videos_df = pd.DataFrame(Videos_list)
-    Videos_df.columns = ["Index","Country","Video_time","Video_url","Region","Title"]
-    postgre_insert(Videos_df.columns,Videos_df)
+    Videos_df.columns = ["Index","Country","Video_time","Video_url","Region","Title","Scanned_Date"]
+    postgre_insert(Videos_df, TABLE4)
+    print('The videos page has been transferred to the database.')
 
     
 if __name__=='__main__':
