@@ -11,18 +11,20 @@ print('Packages are imported')
 print('Packages are imported')
 
 load_dotenv()
-HOST = os.environ.get("HOST")
-DATABASE = os.environ.get("DATABASE")
-USER = os.environ.get("USER")
-PASSWORD = os.environ.get("PASSWORD")
-PORT = os.environ.get("PORT")
-SCHEMA = os.environ.get("SCHEMA")
-TABLE1 = os.environ.get("TABLE1")
-TABLE2 = os.environ.get("TABLE2")
-TABLE3 = os.environ.get("TABLE3")
-TABLE4 = os.environ.get("TABLE4")
-USER_AGENT = os.environ.get("USER_AGENT")
-COOKIE = os.environ.get("COOKIE")
+HOST = os.environ.get("DB_HOST")
+DATABASE = os.environ.get("DB_DATABASE")
+USER = os.environ.get("DB_USER")
+PASSWORD = os.environ.get("DB_PASSWORD")
+PORT = os.environ.get("DB_PORT")
+SCHEMA = os.environ.get("DB_SCHEMA")
+TABLE_SEARCH = os.environ.get("DB_TABLE_SEARCH")
+TABLE_HASHTAGS = os.environ.get("DB_TABLE_HASHTAGS")
+TABLE_SONGS = os.environ.get("DB_TABLE_SONGS")
+TABLE_CREATORS = os.environ.get("DB_TABLE_CREATORS")
+TABLE_VIDEOS = os.environ.get("DB_TABLE_VIDEOS")
+USER_AGENT = os.environ.get("DB_USER_AGENT")
+COOKIE = os.environ.get("DB_COOKIE")
+COOKIE_SEARCH = os.environ.get("DB_COOKIE_SEARCH")
 
 today = datetime.today().strftime("%Y-%m-%d")
 def postgre_insert(df, table_name):
@@ -45,6 +47,78 @@ def postgre_insert(df, table_name):
         
     conn.close()
     print('Connection Close.')
+
+def Search(keyword):
+    offset = 0
+    keyword_information = []
+    index = 0
+    for i in range(0,8):
+        url = 'https://www.tiktok.com/api/search/general/full/'
+        params = {
+            'keyword': f'{keyword}',  # Type the word you want to search here
+            f'offset' : {offset}
+        }
+        headers = {
+            'User-Agent' : USER_AGENT,
+            'Cookie' : COOKIE_SEARCH
+        }
+        
+        # API'den veri çekme işlemi
+        response = requests.get(url, params=params, headers=headers)
+
+        # İsteğin başarılı olup olmadığını kontrol etme
+        if response.status_code == 200:
+            data = response.json()
+            
+            
+            # Verileri işleme
+            for item in data["data"]:
+                # Video information
+                video = item["item"]["video"]
+                Download_url = video["downloadAddr"]
+                Video_len = video["duration"]
+                Video_comment_count = item["item"]["stats"]["commentCount"]
+                Video_like_count = item["item"]["stats"]["diggCount"]
+                Video_play_count = item["item"]["stats"]["playCount"]
+                Video_share_count = item["item"]["stats"]["shareCount"]
+                
+                # User information
+                author = item["item"]["author"]
+                Nickname = author["uniqueId"]
+                Name = author["nickname"]
+                
+                # Song information
+                music = item["item"]["music"]
+                #Author_Name = music["authorName"]
+                Author_Name = music.get("item", {}).get("music", None)
+                #Song_len = music["item"]["music"]["duration"]
+                Song_len = music.get("item", {}).get("music", {}).get("duration", None)
+                Song_Name = music["title"]
+                
+                # Person's membership information
+                authorStats = item["item"]["authorStats"]
+                diggCount = authorStats["diggCount"]
+                Follower_Count = authorStats["followerCount"]
+                Following_Count = authorStats["followingCount"]
+                Total_Likes = authorStats["heartCount"]
+                Video_Count = authorStats["videoCount"]
+                
+                # Other information
+                Create_Time = item["item"]["createTime"]  # Unix zaman damgası
+                Create_time = datetime.datetime.fromtimestamp(Create_Time).strftime('%Y-%m-%d %H:%M:%S')
+                Description = item["item"]["desc"]
+                
+                index += 1
+                
+                keyword_information.append([index, Name, Nickname, Following_Count, Follower_Count, Total_Likes, Video_Count, diggCount,
+                                    Description, Create_Time, Video_len, Download_url,
+                                    Video_like_count, Video_share_count, Video_comment_count, Video_play_count,
+                                    Song_Name, Author_Name, Song_len])
+                    
+            offset += 12
+            print(f"{offset} items received.")
+            
+    return(keyword_information)
 
 def Hashtags():
     url = 'https://ads.tiktok.com/creative_radar_api/v1/popular_trend/hashtag/list'
@@ -211,13 +285,25 @@ def Videos():
 
 def main():
     
+    #Search_page
+    keyword = "kış modası"
+    Search_list = Search(keyword)
+    print('Search page scanned.')
+    Search_df = pd.DataFrame(Search_list)
+    Search_df.columns = ["Index","Name","Nickname","Following_Count","Follower_Count","Total_Likes","Video_COunt","DiggCount",
+                        "Description","Create_Time","Video_len","Download_url",
+                        "Video_like_count","Video_share_count","Video_comment_count","Video_play_count",
+                        "Song_Name","Author_Name","Song_len"]
+    postgre_insert(Search_df, TABLE_SEARCH)
+    print('The Search page has been transferred to the database.')
+    
     #Hashtags_page
     Hashtags_list = Hashtags()
     print('Hashtags page scanned.')
     Hashtags_df = pd.DataFrame(Hashtags_list)
     Hashtags_df.columns = ["Index","Hashtag_name","Country","Industry","Trend","Creators_name","Rank",
                            "Video_views","Rank_diff","Rank_diff_type","Scanned_Date"]
-    postgre_insert(Hashtags_df, TABLE1)
+    postgre_insert(Hashtags_df, TABLE_HASHTAGS)
     print('The hashtags page has been transferred to the database.')
     
     #Songs_page
@@ -225,7 +311,7 @@ def main():
     print('Songs page scanned.')
     Songs_df = pd.DataFrame(Songs_list)
     Songs_df.columns = ["Index","Author","Title","Country","Link","Rank","Rank_diff","Rank_diff_type","Trend","Scanned_Date"]
-    postgre_insert(Songs_df, TABLE2)
+    postgre_insert(Songs_df, TABLE_SONGS)
     print('The songs page has been transferred to the database.')
     
     #Creators_page
@@ -234,7 +320,7 @@ def main():
     Creators_df = pd.DataFrame(Creators_list)
     Creators_df.columns = ["Index","Nick_name","Country","Follower","Like","Tiktok_link","Marketp_link","Videos_link"
                            ,"Videos_view","Videos_like","Videos_create_time","Scanned_Date"]
-    postgre_insert(Creators_df, TABLE3)
+    postgre_insert(Creators_df, TABLE_CREATORS)
     print('The creators page has been transferred to the database.')
     
     #Videos_page
@@ -242,9 +328,8 @@ def main():
     print('Videos page scanned.')
     Videos_df = pd.DataFrame(Videos_list)
     Videos_df.columns = ["Index","Country","Video_time","Video_url","Region","Title","Scanned_Date"]
-    postgre_insert(Videos_df, TABLE4)
+    postgre_insert(Videos_df, TABLE_VIDEOS)
     print('The videos page has been transferred to the database.')
 
-    
 if __name__=='__main__':
     main()
