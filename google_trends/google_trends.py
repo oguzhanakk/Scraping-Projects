@@ -39,6 +39,73 @@ def postgre_insert(df, table_name):
     conn.close()
     print('Connection Close.')
 
+def Get_Token_Explore(keyword):
+    
+    url = "https://trends.google.com/trends/api/explore?req=%7B%22comparisonItem%22:%5B%7B%22keyword%22:%22{}%22,%22geo%22:%22TR%22,%22time%22:%22today+12-m%22%7D%5D,%22category%22:0,%22property%22:%22%22%7D".format(keyword)
+    params = {
+        "hl": "tr",
+        "tz": "180",
+    }
+    headers = {
+        "Cookie": "NID=511=MmoiWHSgAhA-RntVmBEugVOx23f1MaNCXewtW7mXd38oSm_1WjpQEB4ZCymdDSeJ-ZUNY1Jm4izdXs5DCKQQDJSwk8rOEWSYzKGkZ1emgvwJpwWogJ4xnFbjSo145znrGf91hgfA5jlM4AEKibbpYC0Ar2Y8V2tPpftQCtyJ4Mo"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+    print(response)
+    data = response.text.split('\n')[1]
+    data = json.loads(data)
+    Time_Series = data['widgets'][0]['token']
+    Geo_map = data['widgets'][1]['token']
+    Related_Topics = data['widgets'][2]['token']
+    Related_Queries = data['widgets'][3]['token']
+    return(Time_Series,Geo_map,Related_Topics,Related_Queries)
+
+def Time_Series(keyword,token):
+    
+    url = "https://trends.google.com/trends/api/widgetdata/multiline?req=%7B%22time%22:%222022-03-01+2023-03-01%22,%22resolution%22:%22WEEK%22,%22locale%22:%22tr%22,%22comparisonItem%22:%5B%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D%5D,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D".format(keyword)
+
+    params = {
+        "hl": "tr",
+        "tz": "180",
+        "token": token
+    }
+
+    response = requests.get(url, params=params)
+    print(response)
+    # Check if the request was successful
+    if response.status_code == 200:
+        data = response.text
+        data = data[6:]
+        data = json.loads(data)
+        
+        timeline_data = data["default"]["timelineData"]
+        Time_Series = [[data_point["formattedAxisTime"], data_point["value"][0]] for data_point in timeline_data]
+        #print(trends_keyword)
+        return(Time_Series)
+
+def Geo_map(keyword,token):
+    
+    url = "https://trends.google.com/trends/api/widgetdata/comparedgeo?req=%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22comparisonItem%22:%5B%7B%22time%22:%222022-03-01+2023-03-01%22,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D%5D,%22resolution%22:%22REGION%22,%22locale%22:%22tr%22,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D".format(keyword)
+
+    params = {
+        "hl": "tr",
+        "tz": "180",
+        "token": token
+    }
+
+    response = requests.get(url, params=params)
+    print(response)
+    if response.status_code == 200:
+        data = response.text
+        data = data[6:]
+        data = json.loads(data)
+
+        Geo_map_data = data["default"]["geoMapData"]
+        Geo_map = [[data_point["geoName"], data_point["value"][0]] for data_point in Geo_map_data]
+        #print(Time_Series)
+        return(Geo_map)
+
+
 def Related(keyword,token1,token2):    
     
     url1 = 'https://trends.google.com/trends/api/widgetdata/relatedsearches?req=%7B%22restriction%22:%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22time%22:%222022-03-01+2023-03-01%22,%22originalTimeRangeForExploreUrl%22:%22today+12-m%22,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D,%22keywordType%22:%22ENTITY%22,%22metric%22:%5B%22TOP%22,%22RISING%22%5D,%22trendinessSettings%22:%7B%22compareTime%22:%222021-02-28+2022-02-28%22%7D,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22language%22:%22tr%22,%22userCountryCode%22:%22TR%22,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D'.format(keyword)
@@ -77,92 +144,51 @@ def Related(keyword,token1,token2):
             Related_Topics.append([title1,type1,link1,value1])
         #print(Related_Topics)
         
-        Related_Quareies = []
+        Related_Queries = []
         for i in range(0,len(data2["default"]["rankedList"][1]["rankedKeyword"])):
             title2 = data2["default"]["rankedList"][1]["rankedKeyword"][i]["query"]
             type2 = data2["default"]["rankedList"][1]["rankedKeyword"][i]["formattedValue"]
             link2 = data2["default"]["rankedList"][1]["rankedKeyword"][i]["link"]
             link2 = 'https://trends.google.com' + link2
             value2 = data2["default"]["rankedList"][1]["rankedKeyword"][i]["value"]
-            Related_Quareies.append([title2,type2,link2,value2])
-        #print(Related_Quareies)
+            Related_Queries.append([title2,type2,link2,value2])
+        #print(Related_Queries)
         
-        return(Related_Topics,Related_Quareies)
-
-def Trends_City(keyword,token):
-    
-    url = "https://trends.google.com/trends/api/widgetdata/comparedgeo?req=%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22comparisonItem%22:%5B%7B%22time%22:%222022-03-01+2023-03-01%22,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D%5D,%22resolution%22:%22REGION%22,%22locale%22:%22tr%22,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D".format(keyword)
-
-    params = {
-        "hl": "tr",
-        "tz": "180",
-        "token": token
-    }
-
-    response = requests.get(url, params=params)
-
-    if response.status_code == 200:
-        data = response.text
-        data = data[6:]
-        data = json.loads(data)
-
-        timeline_data = data["default"]["geoMapData"]
-        trends_city = [[data_point["geoName"], data_point["value"][0]] for data_point in timeline_data]
-        #print(trends_city)
-        return(trends_city)
-
-def Trends_Count(keyword,token):
-    
-    url = "https://trends.google.com/trends/api/widgetdata/multiline?req=%7B%22time%22:%222022-03-01+2023-03-01%22,%22resolution%22:%22WEEK%22,%22locale%22:%22tr%22,%22comparisonItem%22:%5B%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D%5D,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D".format(keyword)
-
-    params = {
-        "hl": "tr",
-        "tz": "180",
-        "token": token
-    }
-
-    response = requests.get(url, params=params)
-    print(response)
-    # Check if the request was successful
-    if response.status_code == 200:
-        data = response.text
-        data = data[6:]
-        data = json.loads(data)
-        
-        timeline_data = data["default"]["timelineData"]
-        trends_keyword = [[data_point["formattedAxisTime"], data_point["value"][0]] for data_point in timeline_data]
-        #print(trends_keyword)
-        return(trends_keyword)
-
+        return(Related_Topics,Related_Queries)
 
 def main():
     
     #It works together with entering a keyword and a total of 4 tokens, that is, 5 values.
     keyword = input('Enter the word you want to search for: ')
     
+    
     Related_token1 = 'APP6_UEAAAAAZACTeA3P5C3uwAiQ0srbs0WLJ0nfF9Um'
     Related_token2 = 'APP6_UEAAAAAZACTeKnrCyYe1pDHyeFwFdnPEw3pUSih'
     City_token = 'APP6_UEAAAAAZACTeO4MACNQqvXdfmmk7pVe_eLTo4EA'
-    Count_token = 'APP6_UEAAAAAZACghup_wGUAI9n5zTt7ihqmoIcx6F6O'
+    Count_token = 'APP6_UEAAAAAZAD3W4xzbX03ZLb-m3xfvVy0Waw9bO2'
     
-    Related_Topics_list,Related_Quareies_list = Related(keyword,Related_token1,Related_token2)
+    Time_Series_Token,Geo_map_Token,Related_Topics_Token,Related_Queries_Token = Get_Token_Explore(keyword)
+    print(Time_Series_Token,Geo_map_Token,Related_Topics_Token,Related_Queries_Token)
+    
+    Time_Series_list = Time_Series(keyword,Count_token)
+    Time_Series_df = pd.DataFrame(Time_Series_list)
+    Time_Series_df.columns = ["City","Value"]
+    
+    Geo_Map_list = Geo_Map(keyword,Geo_map_Token)
+    Geo_Map_df = pd.DataFrame(Geo_Map_list)
+    Geo_Map_df.columns = ["Date","Value"]
+    
+    Related_Topics_list,Related_Queries_list = Related(keyword,Related_Topics_Token,Related_Queries_Token)
     Related_Topics_df = pd.DataFrame(Related_Topics_list)
     Related_Topics_df.columns = ["Title","Type","Link","Value"]
-    Related_Quareies_df = pd.DataFrame(Related_Quareies_list)
-    Related_Quareies_df.columns = ["Title","Type","Link","Value"]
-    
-    Trends_City_list = Trends_City(keyword,City_token)
-    Trends_City_df = pd.DataFrame(Trends_City_list)
-    Trends_City_df.columns = ["City","Value"]
-    
-    Trends_Count_list = Trends_Count(keyword,Count_token)
-    Trends_Count_df = pd.DataFrame(Trends_Count_list)
-    Trends_Count_df.columns = ["Date","Value"]
+    Related_Queries_df = pd.DataFrame(Related_Queries_list)
+    Related_Queries_df.columns = ["Title","Type","Link","Value"]
 
-    #postgre_insert(Trends_Count_df,'Trends_Count')
-    #postgre_insert(Trends_City_df,'Trends_City')
+    print(Time_Series_df,'\n',Geo_Map_df,'\n',Related_Topics_df,'\n',Related_Queries_df)
+    #postgre_insert(Time_Series_df,'Time_Series')
+    #postgre_insert(Geo_Map_df,'Geo_Map')
     #postgre_insert(Related_Topics_df,'Related_Topics')
-    #postgre_insert(Related_Quareies_df,'Related_Quareies')
+    #postgre_insert(Related_Queries_df,'Related_Queries')
     
 if __name__=='__main__':
     main()
