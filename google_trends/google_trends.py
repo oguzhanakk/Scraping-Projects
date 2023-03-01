@@ -159,10 +159,10 @@ def main():
     Trends_Count_df = pd.DataFrame(Trends_Count_list)
     Trends_Count_df.columns = ["Date","Value"]
 
-    #print(Trends_Count_df)
-    #print(Trends_City_df)
-    #print(Related_Topics_df)
-    #print(Related_Quareies_df)
+    #postgre_insert(Trends_Count_df,'Trends_Count')
+    #postgre_insert(Trends_City_df,'Trends_City')
+    #postgre_insert(Related_Topics_df,'Related_Topics')
+    #postgre_insert(Related_Quareies_df,'Related_Quareies')
     
 if __name__=='__main__':
     main()
