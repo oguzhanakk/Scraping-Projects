@@ -65,7 +65,8 @@ def Search(keyword):
         
         # API'den veri çekme işlemi
         response = requests.get(url, params=params, headers=headers)
-
+        print('Search: ',response)
+        
         # İsteğin başarılı olup olmadığını kontrol etme
         if response.status_code == 200:
             data = response.json()
@@ -135,7 +136,8 @@ def Hashtags():
     # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
-
+    print('Hashtags: ',response1,response2)
+    
     # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
         data1 = response1.json()
@@ -185,6 +187,7 @@ def Songs():
     # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
+    print('Songs: ',response1,response2)
 
     # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
@@ -224,6 +227,7 @@ def Creators():
     # API'den veri çekme işlemi
     response1 = requests.get(url, params=params, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
+    print('Creators: ',response1,response2)
 
     # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
@@ -262,6 +266,7 @@ def Videos():
     # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
+    print('Videos: ',response1,response2)
 
     # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
@@ -286,7 +291,7 @@ def Videos():
 def main():
     
     #Search_page
-    keyword = "kış modası"
+    keyword = "kışmodası"
     Search_list = Search(keyword)
     print('Search page scanned.')
     Search_df = pd.DataFrame(Search_list)
