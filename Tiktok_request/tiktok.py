@@ -63,61 +63,68 @@ def Search(keyword):
             'Cookie' : COOKIE_SEARCH
         }
         
-        # API'den veri çekme işlemi
+        # Pulling data from API
         response = requests.get(url, params=params, headers=headers)
         print('Search: ',response)
         
-        # İsteğin başarılı olup olmadığını kontrol etme
+        # Checking if the request was successful
         if response.status_code == 200:
             data = response.json()
             
-            
-            # Verileri işleme
-            for item in data["data"]:
-                # Video information
-                video = item["item"]["video"]
-                Download_url = video["downloadAddr"]
-                Video_len = video["duration"]
-                Video_comment_count = item["item"]["stats"]["commentCount"]
-                Video_like_count = item["item"]["stats"]["diggCount"]
-                Video_play_count = item["item"]["stats"]["playCount"]
-                Video_share_count = item["item"]["stats"]["shareCount"]
-                
-                # User information
-                author = item["item"]["author"]
-                Nickname = author["uniqueId"]
-                Name = author["nickname"]
-                
-                # Song information
-                music = item["item"]["music"]
-                #Author_Name = music["authorName"]
-                Author_Name = music.get("item", {}).get("music", None)
-                #Song_len = music["item"]["music"]["duration"]
-                Song_len = music.get("item", {}).get("music", {}).get("duration", None)
-                Song_Name = music["title"]
-                
-                # Person's membership information
-                authorStats = item["item"]["authorStats"]
-                diggCount = authorStats["diggCount"]
-                Follower_Count = authorStats["followerCount"]
-                Following_Count = authorStats["followingCount"]
-                Total_Likes = authorStats["heartCount"]
-                Video_Count = authorStats["videoCount"]
-                
-                # Other information
-                Create_Time = item["item"]["createTime"]  # Unix zaman damgası
-                Create_time = datetime.datetime.fromtimestamp(Create_Time).strftime('%Y-%m-%d %H:%M:%S')
-                Description = item["item"]["desc"]
-                
-                index += 1
-                
-                keyword_information.append([index, Name, Nickname, Following_Count, Follower_Count, Total_Likes, Video_Count, diggCount,
-                                    Description, Create_Time, Video_len, Download_url,
-                                    Video_like_count, Video_share_count, Video_comment_count, Video_play_count,
-                                    Song_Name, Author_Name, Song_len])
+            try:
+                # Data processing
+                for item in data["data"]:
+                    # Video information
+                    try:
+                        video = item["item"]["video"]
+                    except:
+                        print('entered in break function. (item not found.)')
+                        break
+                    Download_url = video["downloadAddr"]
+                    Video_len = video["duration"]
+                    Video_comment_count = item["item"]["stats"]["commentCount"]
+                    Video_like_count = item["item"]["stats"]["diggCount"]
+                    Video_play_count = item["item"]["stats"]["playCount"]
+                    Video_share_count = item["item"]["stats"]["shareCount"]
                     
-            offset += 12
-            print(f"{offset} items received.")
+                    # User information
+                    author = item["item"]["author"]
+                    Nickname = author["uniqueId"]
+                    Name = author["nickname"]
+                    
+                    # Song information
+                    music = item["item"]["music"]
+                    #Author_Name = music["authorName"]
+                    Author_Name = music.get("item", {}).get("music", None)
+                    #Song_len = music["item"]["music"]["duration"]
+                    Song_len = music.get("item", {}).get("music", {}).get("duration", None)
+                    Song_Name = music["title"]
+                    
+                    # Person's membership information
+                    authorStats = item["item"]["authorStats"]
+                    diggCount = authorStats["diggCount"]
+                    Follower_Count = authorStats["followerCount"]
+                    Following_Count = authorStats["followingCount"]
+                    Total_Likes = authorStats["heartCount"]
+                    Video_Count = authorStats["videoCount"]
+                    
+                    # Other information
+                    Create_Time = item["item"]["createTime"]  # Unix zaman damgası
+                    Create_time = datetime.fromtimestamp(Create_Time).strftime('%Y-%m-%d %H:%M:%S')
+                    Description = item["item"]["desc"]
+                    
+                    index += 1
+                    
+                    keyword_information.append([index, Name, Nickname, Following_Count, Follower_Count, Total_Likes, Video_Count, diggCount,
+                                        Description, Create_Time, Video_len, Download_url,
+                                        Video_like_count, Video_share_count, Video_comment_count, Video_play_count,
+                                        Song_Name, Author_Name, Song_len])
+                        
+                offset += 12
+                print(f"{offset} items received.")
+            except:
+                print('General break made. (data not found.)')
+                continue
             
     return(keyword_information)
 
@@ -133,17 +140,14 @@ def Hashtags():
         'Cookie' : COOKIE
         }
 
-    # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
     print('Hashtags: ',response1,response2)
     
-    # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
         data1 = response1.json()
         data2 = response2.json()
 
-        # Verileri işleme
         hashtags_information = []
         index = 0
         for data in [data1, data2]:
@@ -184,17 +188,14 @@ def Songs():
         'Cookie' : COOKIE
         }
 
-    # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
     print('Songs: ',response1,response2)
 
-    # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
         data1 = response1.json()
         data2 = response2.json()
 
-        # Verileri işleme
         songs_information = []
         index = 0
         for data in [data1, data2]:
@@ -224,12 +225,10 @@ def Creators():
         'User-Agent': USER_AGENT
     }
 
-    # API'den veri çekme işlemi
     response1 = requests.get(url, params=params, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
     print('Creators: ',response1,response2)
 
-    # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
         data1 = response1.json()
         data2 = response2.json()
@@ -263,17 +262,14 @@ def Videos():
     params2 = {'period': '7', 'page': '2', 'limit': '50', 'order_by': 'vv', 'country_code': 'TR'}
     headers = {'User-Agent': USER_AGENT}
 
-    # API'den veri çekme işlemi
     response1 = requests.get(url, params=params1, headers=headers)
     response2 = requests.get(url, params=params2, headers=headers)
     print('Videos: ',response1,response2)
 
-    # İsteğin başarılı olup olmadığını kontrol etme
     if response1.status_code == 200 and response2.status_code == 200:
         data1 = response1.json()
         data2 = response2.json()
 
-        # Verileri işleme
         videos_information = []
         index = 0
         for data in [data1, data2]:
@@ -291,7 +287,7 @@ def Videos():
 def main():
     
     #Search_page
-    keyword = "kışmodası"
+    keyword = "kışmodası" #It means 20% space. For example, winter20%fashion = winter fashion
     Search_list = Search(keyword)
     print('Search page scanned.')
     Search_df = pd.DataFrame(Search_list)
