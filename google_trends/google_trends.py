@@ -164,7 +164,7 @@ def Related(keyword,token1,token2):
         "keyword": [
             {
             "type": "BROAD",
-            "value": "tahta"
+            "value": "{}".format(keyword)
             }
         ]
         }
@@ -211,7 +211,7 @@ def Related(keyword,token1,token2):
         "keyword": [
             {
             "type": "BROAD",
-            "value": "tahta"
+            "value": "{}".format(keyword)
             }
         ]
         }
