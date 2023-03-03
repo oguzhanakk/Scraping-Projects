@@ -2,6 +2,7 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime
+import datetime
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, inspect
@@ -17,7 +18,18 @@ PASSWORD = os.environ.get("DB_PASSWORD")
 PORT = os.environ.get("DB_PORT")
 SCHEMA = os.environ.get("DB_SCHEMA")
 
-today = datetime.today().strftime("%Y-%m-%d")
+today = datetime.date.today()
+yesterday = today - datetime.timedelta(days=1)
+yesterday_str = yesterday.strftime("%Y-%m-%d")
+
+one_year_oneday_ago = today - datetime.timedelta(days=366)
+one_year_oneday_ago_str = one_year_oneday_ago.strftime("%Y-%m-%d")
+
+two_year_ago = today - datetime.timedelta(days=732)
+two_year_ago_str = two_year_ago.strftime("%Y-%m-%d")
+
+one_year_twoday_ago = today - datetime.timedelta(days=367)
+one_year_twoday_ago_str = one_year_twoday_ago.strftime("%Y-%m-%d")
 def postgre_insert(df, table_name):
     
     # Create database connection
@@ -68,7 +80,7 @@ def Time_Series(keyword,token):
     url = "https://trends.google.com/trends/api/widgetdata/multiline"
 
     req_template = {
-    "time": "{} {}".format("2022-03-02", "2023-03-02"),
+    "time": "{} {}".format(one_year_oneday_ago,yesterday),
     "resolution": "WEEK",
     "locale": "tr",
     "comparisonItem": [{"geo": {"country": "TR"},"complexKeywordsRestriction": {"keyword": [{"type": "BROAD", "value": keyword}]}}],"requestOptions": {"property": "", "backend": "IZG", "category": 0},"userConfig": {"userType": "USER_TYPE_LEGIT_USER"}}
@@ -103,7 +115,7 @@ def Geo_map(keyword,token):
         "geo": {"country": "TR"},
         "comparisonItem": [
         {
-            "time": "2022-03-02 2023-03-02",
+            "time": "{} {}".format(one_year_oneday_ago,yesterday),
             "complexKeywordsRestriction": {
                 "keyword": [{"type": "BROAD", "value": keyword}]
             }
@@ -139,20 +151,97 @@ def Geo_map(keyword,token):
 
 def Related(keyword,token1,token2):    
     
-    url1 = 'https://trends.google.com/trends/api/widgetdata/relatedsearches?req=%7B%22restriction%22:%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22time%22:%222022-03-02+2023-03-02%22,%22originalTimeRangeForExploreUrl%22:%22today+12-m%22,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D,%22keywordType%22:%22ENTITY%22,%22metric%22:%5B%22TOP%22,%22RISING%22%5D,%22trendinessSettings%22:%7B%22compareTime%22:%222021-03-01+2022-03-01%22%7D,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22language%22:%22tr%22,%22userCountryCode%22:%22TR%22,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D'.format(keyword)
+    url1 = 'https://trends.google.com/trends/api/widgetdata/relatedsearches'
+    
+    req_template1 = {
+    "restriction": {
+        "geo": {
+        "country": "TR"
+        },
+        "time": "{} {}".format(one_year_oneday_ago,yesterday),
+        "originalTimeRangeForExploreUrl": "today 12-m",
+        "complexKeywordsRestriction": {
+        "keyword": [
+            {
+            "type": "BROAD",
+            "value": "tahta"
+            }
+        ]
+        }
+    },
+    "keywordType": "ENTITY",
+    "metric": [
+        "TOP",
+        "RISING"
+    ],
+    "trendinessSettings": {
+        "compareTime": "{} {}".format(two_year_ago_str,one_year_twoday_ago_str)
+    },
+    "requestOptions": {
+        "property": "",
+        "backend": "IZG",
+        "category": 0
+    },
+    "language": "tr",
+    "userCountryCode": "TR",
+    "userConfig": {
+        "userType": "USER_TYPE_LEGIT_USER"
+    }
+    }
+
+    req1 = json.dumps(req_template1)
     
     params1 = {
         "hl": "tr",
         "tz": "180",
-        #"req": req1,
+        "req": req1,
         "token": token1
     }
     
-    url2 = 'https://trends.google.com/trends/api/widgetdata/relatedsearches?req=%7B%22restriction%22:%7B%22geo%22:%7B%22country%22:%22TR%22%7D,%22time%22:%222022-03-02+2023-03-02%22,%22originalTimeRangeForExploreUrl%22:%22today+12-m%22,%22complexKeywordsRestriction%22:%7B%22keyword%22:%5B%7B%22type%22:%22BROAD%22,%22value%22:%22{}%22%7D%5D%7D%7D,%22keywordType%22:%22QUERY%22,%22metric%22:%5B%22TOP%22,%22RISING%22%5D,%22trendinessSettings%22:%7B%22compareTime%22:%222021-03-01+2022-03-01%22%7D,%22requestOptions%22:%7B%22property%22:%22%22,%22backend%22:%22IZG%22,%22category%22:0%7D,%22language%22:%22tr%22,%22userCountryCode%22:%22TR%22,%22userConfig%22:%7B%22userType%22:%22USER_TYPE_LEGIT_USER%22%7D%7D'.format(keyword)
+    url2 = 'https://trends.google.com/trends/api/widgetdata/relatedsearches'
+    
+    req_template2 = {
+    "restriction": {
+        "geo": {
+        "country": "TR"
+        },
+        "time": "{} {}".format(one_year_oneday_ago,yesterday),
+        "originalTimeRangeForExploreUrl": "today 12-m",
+        "complexKeywordsRestriction": {
+        "keyword": [
+            {
+            "type": "BROAD",
+            "value": "tahta"
+            }
+        ]
+        }
+    },
+    "keywordType": "QUERY",
+    "metric": [
+        "TOP",
+        "RISING"
+    ],
+    "trendinessSettings": {
+        "compareTime": "{} {}".format(two_year_ago_str,one_year_twoday_ago_str)
+    },
+    "requestOptions": {
+        "property": "",
+        "backend": "IZG",
+        "category": 0
+    },
+    "language": "tr",
+    "userCountryCode": "TR",
+    "userConfig": {
+        "userType": "USER_TYPE_LEGIT_USER"
+    }
+    }
+
+    req2 = json.dumps(req_template2)
+    
     params2 = {
             "hl": "tr",
             "tz": "180",
-            #"req": req2
+            "req": req2,
             "token": token2
         }
     
