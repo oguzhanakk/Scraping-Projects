@@ -19,17 +19,17 @@ PORT = os.environ.get("DB_PORT")
 SCHEMA = os.environ.get("DB_SCHEMA")
 
 today = datetime.date.today()
-yesterday = today - datetime.timedelta(days=1)
-yesterday_str = yesterday.strftime("%Y-%m-%d")
+todayy = today - datetime.timedelta(days=0)
+todayy_str = todayy.strftime("%Y-%m-%d")
+
+one_year_ago = today - datetime.timedelta(days=365)
+one_year_ago_str = one_year_ago.strftime("%Y-%m-%d")
+
+two_year_oneday_ago = today - datetime.timedelta(days=731)
+two_year_oneday_ago_str = two_year_oneday_ago.strftime("%Y-%m-%d")
 
 one_year_oneday_ago = today - datetime.timedelta(days=366)
 one_year_oneday_ago_str = one_year_oneday_ago.strftime("%Y-%m-%d")
-
-two_year_ago = today - datetime.timedelta(days=732)
-two_year_ago_str = two_year_ago.strftime("%Y-%m-%d")
-
-one_year_twoday_ago = today - datetime.timedelta(days=367)
-one_year_twoday_ago_str = one_year_twoday_ago.strftime("%Y-%m-%d")
 def postgre_insert(df, table_name):
     
     # Create database connection
@@ -80,7 +80,7 @@ def Time_Series(keyword,token):
     url = "https://trends.google.com/trends/api/widgetdata/multiline"
 
     req_template = {
-    "time": "{} {}".format(one_year_oneday_ago,yesterday),
+    "time": "{} {}".format(one_year_ago,todayy),
     "resolution": "WEEK",
     "locale": "tr",
     "comparisonItem": [{"geo": {"country": "TR"},"complexKeywordsRestriction": {"keyword": [{"type": "BROAD", "value": keyword}]}}],"requestOptions": {"property": "", "backend": "IZG", "category": 0},"userConfig": {"userType": "USER_TYPE_LEGIT_USER"}}
@@ -115,7 +115,7 @@ def Geo_map(keyword,token):
         "geo": {"country": "TR"},
         "comparisonItem": [
         {
-            "time": "{} {}".format(one_year_oneday_ago,yesterday),
+            "time": "{} {}".format(one_year_ago,todayy),
             "complexKeywordsRestriction": {
                 "keyword": [{"type": "BROAD", "value": keyword}]
             }
@@ -158,7 +158,7 @@ def Related(keyword,token1,token2):
         "geo": {
         "country": "TR"
         },
-        "time": "{} {}".format(one_year_oneday_ago,yesterday),
+        "time": "{} {}".format(one_year_ago,todayy),
         "originalTimeRangeForExploreUrl": "today 12-m",
         "complexKeywordsRestriction": {
         "keyword": [
@@ -175,7 +175,7 @@ def Related(keyword,token1,token2):
         "RISING"
     ],
     "trendinessSettings": {
-        "compareTime": "{} {}".format(two_year_ago_str,one_year_twoday_ago_str)
+        "compareTime": "{} {}".format(two_year_oneday_ago_str,one_year_oneday_ago_str)
     },
     "requestOptions": {
         "property": "",
@@ -205,7 +205,7 @@ def Related(keyword,token1,token2):
         "geo": {
         "country": "TR"
         },
-        "time": "{} {}".format(one_year_oneday_ago,yesterday),
+        "time": "{} {}".format(one_year_ago,todayy),
         "originalTimeRangeForExploreUrl": "today 12-m",
         "complexKeywordsRestriction": {
         "keyword": [
@@ -222,7 +222,7 @@ def Related(keyword,token1,token2):
         "RISING"
     ],
     "trendinessSettings": {
-        "compareTime": "{} {}".format(two_year_ago_str,one_year_twoday_ago_str)
+        "compareTime": "{} {}".format(two_year_oneday_ago_str,one_year_oneday_ago_str)
     },
     "requestOptions": {
         "property": "",
@@ -285,10 +285,10 @@ def main():
     #It works together with entering a keyword and a total of 4 tokens, that is, 5 values.
     keyword = input('Enter the word you want to search for: ')
     
-    Time_Series_Token = 'APP6_UEAAAAAZAGtTZ_CXhvuuKd2XyH65uu2MD4ltqDf'
-    Geo_map_Token = 'APP6_UEAAAAAZAGtTdgQni_eLJ4oYPLwQr6qLPTcv1IH'
-    Related_Topics_Token = 'APP6_UEAAAAAZAGtTf9sdV5dthjRHw8GcuZKYopXhy88'
-    Related_Queries_Token = 'APP6_UEAAAAAZAGtTRzaSD4n3XDeZx5NT567oawub-6p'
+    Time_Series_Token = 'APP6_UEAAAAAZAbfKk0_5FWl7okWM6Dfk7UiiiQ_q9Dt'
+    Geo_map_Token = 'APP6_UEAAAAAZAbfKnleIhr9IxwrG_Arps66zNnHTaNn'
+    Related_Topics_Token = 'APP6_UEAAAAAZAbfKh7Prc2mhwkbM5JaW8jKI4DWDySs'
+    Related_Queries_Token = 'APP6_UEAAAAAZAbfKglAv4N3LOqXJFFGmLlDo1tSvu6K'
     
     #Time_Series_Token,Geo_map_Token,Related_Topics_Token,Related_Queries_Token = Get_Token_Explore(keyword)
     print(Time_Series_Token,Geo_map_Token,Related_Topics_Token,Related_Queries_Token)
