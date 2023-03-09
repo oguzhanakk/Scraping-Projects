@@ -5,6 +5,7 @@ import psycopg2
 from dotenv import load_dotenv
 print('Packages are imported')
 
+load_dotenv()
 HOST = os.environ.get("DB_HOST")
 DATABASE = os.environ.get("DB_DATABASE")
 USER = os.environ.get("DB_USER")
@@ -31,15 +32,14 @@ def postgre_insert(df):
 
     # Create schema if not exists
     cur.execute(f'''CREATE SCHEMA IF NOT EXISTS {SCHEMA}''')
-    
-    # Create table
+                                                                                                                                                              
     cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
-                (Restaurant_name text, User_Name text, User_info text, Given_Star text, 
-                    Comment_time text, Comment text)''')
+                (Restaurant_name text, Link text, Comment_number integer, Rating integer, 
+                    Address text, Distance float, Menu_categories text, Product_Name text, Description text, Price Text)''')
     
     # Add trends to db
     for i, row in df.iterrows():
-        cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} () VALUES ()", ())
+        cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Restaurant_name, Link, Comment_number, Rating, Address, Distance, Menu_categories, Product_name, Description, Price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row["Restaurant_Name"],row["Link"],row["Comment_number"],row["Rating"],row["Address"],row["Distance"],row["Menu_categories_name"],row["Product_name"],row["Description"],row["Price"]))
     print("data is inserted to specified db on postgre sql")
 
     # Commit the changes to the database
@@ -91,56 +91,73 @@ def functions(latitude,longitude):
         data = response.json()
         
         number_of_restaurants = len(data["data"]["items"])
-        print(number_of_restaurants)
         
-        restaurant_name = data["data"]["items"][0]["name"]
-        link = data["data"]["items"][0]["redirection_url"]
-        comment_number = data["data"]["items"][0]["review_number"]
-        rating = data["data"]["items"][0]["rating"]
-        address = data["data"]["items"][0]["address"]
-        code = data["data"]["items"][0]["code"]
+        restaurant_name = [data["data"]["items"][a]["name"] for a in range(number_of_restaurants)]
+        link = [data["data"]["items"][a]["redirection_url"] for a in range(number_of_restaurants)]
+        comment_number = [data["data"]["items"][a]["review_number"] for a in range(number_of_restaurants)]
+        rating = [data["data"]["items"][a]["rating"] for a in range(number_of_restaurants)]
+        address = [data["data"]["items"][a]["address"] for a in range(number_of_restaurants)]
+        code = [data["data"]["items"][a]["code"] for a in range(number_of_restaurants)]
         
-        url = f'https://tr.fd-api.com/api/v5/vendors/{code}'
-        params = {
-            'include': 'menus,bundles,multiple_discounts,payment_types',
-            'language_id': 2,
-            'opening_type': 'delivery',
-            'basket_currency': 'TRY',
-            'latitude': latitude,
-            'longitude': longitude
-        }
-        # API'den veri çekme işlemi
-        response = requests.get(url, params=params)
-        print('Restaurant Page :', response)
-        # İsteğin başarılı olup olmadığını kontrol etme
-        if response.status_code == 200:
-            data = response.json()
-        
-            distance = data["data"]["distance"]
-            menu_categories_name = []
-            menu_product_info = []
+        menu_categories_name = []
+        pricee = []
+        product_namee = []
+        descriptionn = []
+        distance = []
+        for i in range(number_of_restaurants):
+            url = f'https://tr.fd-api.com/api/v5/vendors/{code[i]}'
+            params = {
+                'include': 'menus,bundles,multiple_discounts,payment_types',
+                'language_id': 2,
+                'opening_type': 'delivery',
+                'basket_currency': 'TRY',
+                'latitude': latitude,
+                'longitude': longitude
+            }
+            # API'den veri çekme işlemi
+            response = requests.get(url, params=params)
+            print(i+1,'. restaurant','Restaurant Page :', response)
+            # İsteğin başarılı olup olmadığını kontrol etme
+            if response.status_code == 200:
+                data = response.json()
             
-            for i in range(0,len(data["data"]["menus"][0]["menu_categories"])):
-                menu_categories_name.append(data["data"]["menus"][0]["menu_categories"][i]["name"])
-                for j in range(0,len(data["data"]["menus"][0]["menu_categories"][i]["products"])):
-                    product_name = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["name"]
-                    description = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["description"]
-                    price = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["product_variations"][0]["price"]
-                    menu_product_info.append([product_name,description,price])
-                  
-        all_csv = []
-        for i in range(0,1):
-            all_csv.append([restaurant_name,link,address,rating,comment_number,distance,menu_categories_name,menu_product_info])
+                distance.append(data["data"]["distance"])
+                variable_categories = []
+                variant1 = []
+                variant2 = []
+                variant3 = []
+                for i in range(0,len(data["data"]["menus"][0]["menu_categories"])):
+                    variable_categories.append(data["data"]["menus"][0]["menu_categories"][i]["name"])
+                    for j in range(0,len(data["data"]["menus"][0]["menu_categories"][i]["products"])):
+                        product_name = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["name"]
+                        description = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["description"]
+                        price = data["data"]["menus"][0]["menu_categories"][i]["products"][j]["product_variations"][0]["price"]
+                        variant1.append(product_name)
+                        variant2.append(description)
+                        variant3.append(price)
+                
+                menu_categories_name.append(variable_categories)
+                product_namee.append(variant1)
+                descriptionn.append(variant2)
+                pricee.append(variant3)
+                
+        all_list = [restaurant_name, link, comment_number, rating, address, distance, menu_categories_name, product_namee, descriptionn, pricee]
+        # En uzun listedeki eleman sayısına göre diğer listeleri uzatın (boşluklarla)
+        max_len = max(len(l) for l in all_list)
+        for l in all_list:
+            l.extend([''] * (max_len - len(l)))
+
+        df = pd.DataFrame(all_list, index=['Restaurant_Name', 'Link', 'Comment_number', 'Rating', 'Address', 'Distance', 'Menu_categories_name', 'Product_name', 'Description', 'Price']).T
         
-        df = pd.DataFrame(all_csv)
-        df.columns = ["Restaurant_Name","Link","Address","Rating","Comment_Number","Distance","Menu_Categories","Menu_Product"]
-        print(df)
+        return(df)
         
 def main():
     latitude = 36.89803386448301
     longitude = 30.71341047892254
     
-    functions(latitude,longitude)
+    df = functions(latitude,longitude)
+    
+    postgre_insert(df)
     
 if __name__=='__main__':
     main()
