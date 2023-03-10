@@ -92,12 +92,19 @@ def functions(latitude,longitude,limit):
         
         number_of_restaurants = len(data["data"]["items"])
         
-        restaurant_name = [data["data"]["items"][a]["name"] for a in range(number_of_restaurants)]
-        link = [data["data"]["items"][a]["redirection_url"] for a in range(number_of_restaurants)]
-        comment_number = [data["data"]["items"][a]["review_number"] for a in range(number_of_restaurants)]
-        rating = [data["data"]["items"][a]["rating"] for a in range(number_of_restaurants)]
-        address = [data["data"]["items"][a]["address"] for a in range(number_of_restaurants)]
-        code = [data["data"]["items"][a]["code"] for a in range(number_of_restaurants)]
+        restaurant_name = []
+        link = []
+        comment_number = []
+        rating = []
+        address = []
+        code = []
+        for restaurant in data["data"]["items"]:
+            restaurant_name.append(restaurant.get("name", ""))
+            link.append(restaurant.get("redirection_url", ""))
+            comment_number.append(restaurant.get("review_number", ""))
+            rating.append(restaurant.get("rating", ""))
+            address.append(restaurant.get("address", ""))
+            code.append(restaurant.get("code", ""))
         
         menu_categories_name = []
         pricee = []
@@ -154,7 +161,7 @@ def functions(latitude,longitude,limit):
 def main():
     latitude = 36.89803386448301
     longitude = 30.71341047892254
-    limit = 100
+    limit = 10
     
     df = functions(latitude,longitude,limit)
     
