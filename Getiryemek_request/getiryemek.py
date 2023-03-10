@@ -35,7 +35,7 @@ def postgre_insert(df):
     cur.execute(f'''CREATE SCHEMA IF NOT EXISTS {SCHEMA}''')
                 #['Restaurant_Name', 'Rating_Count', 'Rating', 'Address', 'Menu_categories_name', 'Product_name', 'Description', 'Price']                                                                                                                          
     cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
-                (Restaurant_name text, Rating_Count text, Rating integer, 
+                (Restaurant_name text, Rating_Count text, Rating text, 
                     Address text, Menu_categories text, Product_Name text, Description text, Price Text)''')
     
     # Add trends to db
