@@ -161,7 +161,7 @@ def functions(latitude,longitude,limit):
 def main():
     latitude = 36.89803386448301
     longitude = 30.71341047892254
-    limit = 10
+    limit = 100
     
     df = functions(latitude,longitude,limit)
     
