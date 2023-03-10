@@ -34,12 +34,12 @@ def postgre_insert(df):
     cur.execute(f'''CREATE SCHEMA IF NOT EXISTS {SCHEMA}''')
                                                                                                                                                               
     cur.execute(f'''CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}
-                (Restaurant_name text, Link text, Comment_number integer, Rating integer, 
+                (Restaurant_name text, Link text, Rating_count integer, Rating integer, 
                     Address text, Distance float, Menu_categories text, Product_Name text, Description text, Price Text)''')
     
     # Add trends to db
     for i, row in df.iterrows():
-        cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Restaurant_name, Link, Comment_number, Rating, Address, Distance, Menu_categories, Product_name, Description, Price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row["Restaurant_Name"],row["Link"],row["Comment_number"],row["Rating"],row["Address"],row["Distance"],row["Menu_categories_name"],row["Product_name"],row["Description"],row["Price"]))
+        cur.execute(f"INSERT INTO {SCHEMA}.{TABLE} (Restaurant_name, Link, Rating_count, Rating, Address, Distance, Menu_categories, Product_name, Description, Price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (row["Restaurant_Name"],row["Link"],row["Rating_count"],row["Rating"],row["Address"],row["Distance"],row["Menu_categories_name"],row["Product_name"],row["Description"],row["Price"]))
     print("data is inserted to specified db on postgre sql")
 
     # Commit the changes to the database
@@ -94,14 +94,14 @@ def functions(latitude,longitude,limit):
         
         restaurant_name = []
         link = []
-        comment_number = []
+        Rating_count = []
         rating = []
         address = []
         code = []
         for restaurant in data["data"]["items"]:
             restaurant_name.append(restaurant.get("name", ""))
             link.append(restaurant.get("redirection_url", ""))
-            comment_number.append(restaurant.get("review_number", ""))
+            Rating_count.append(restaurant.get("review_number", ""))
             rating.append(restaurant.get("rating", ""))
             address.append(restaurant.get("address", ""))
             code.append(restaurant.get("code", ""))
@@ -148,13 +148,13 @@ def functions(latitude,longitude,limit):
                 descriptionn.append(variant2)
                 pricee.append(variant3)
                 
-        all_list = [restaurant_name, link, comment_number, rating, address, distance, menu_categories_name, product_namee, descriptionn, pricee]
+        all_list = [restaurant_name, link, Rating_count, rating, address, distance, menu_categories_name, product_namee, descriptionn, pricee]
         # Extend other lists according to the number of elements in the longest list (with spaces)
         max_len = max(len(l) for l in all_list)
         for l in all_list:
             l.extend([''] * (max_len - len(l)))
 
-        df = pd.DataFrame(all_list, index=['Restaurant_Name', 'Link', 'Comment_number', 'Rating', 'Address', 'Distance', 'Menu_categories_name', 'Product_name', 'Description', 'Price']).T
+        df = pd.DataFrame(all_list, index=['Restaurant_Name', 'Link', 'Rating_count', 'Rating', 'Address', 'Distance', 'Menu_categories_name', 'Product_name', 'Description', 'Price']).T
         
         return(df)
         
