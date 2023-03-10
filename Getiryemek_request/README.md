@@ -1,4 +1,4 @@
-# Yemeksepeti-request
+# Getiryemek-request
 It is a python program that takes the information of the restaurants in the relevant location and goes to the links of the restaurants one by one and transfers the menu information and user comments in these restaurants to postgre. It gets the relevant data from the relevant URL in the network window. It is a project about Yemeksepeti. When the location is entered, all restaurants belonging to that location are retrieved.
 
 It takes 3 information:

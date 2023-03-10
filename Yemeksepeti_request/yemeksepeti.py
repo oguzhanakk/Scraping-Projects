@@ -52,7 +52,7 @@ def postgre_insert(df):
     print("cursor and connection are closed")
 
 
-def functions(latitude,longitude):
+def functions(latitude,longitude,limit):
 
     url = 'https://disco.deliveryhero.io/listing/api/v1/pandora/vendors'
     params = {
@@ -75,17 +75,17 @@ def functions(latitude,longitude):
         'ncr_place': 'list',
         'vertical': 'restaurants',
         'vertical_type_ids': '',
-        'limit': 48,
+        'limit': limit,
         'offset': 48,
         'customer_type': 'regular'
     }
     headers = {
         'x-disco-client-id' : 'web'
     }
-    # API'den veri çekme işlemi
+    # Pulling data from API
     response = requests.get(url, params=params, headers=headers)
     print('Yemeksepeti Main Page :',response)
-    # İsteğin başarılı olup olmadığını kontrol etme
+    # Checking if the request was successful
 
     if response.status_code == 200:
         data = response.json()
@@ -114,10 +114,10 @@ def functions(latitude,longitude):
                 'latitude': latitude,
                 'longitude': longitude
             }
-            # API'den veri çekme işlemi
+            # Pulling data from API
             response = requests.get(url, params=params)
             print(i+1,'. restaurant','Restaurant Page :', response)
-            # İsteğin başarılı olup olmadığını kontrol etme
+            # Checking if the request was successful
             if response.status_code == 200:
                 data = response.json()
             
@@ -142,7 +142,7 @@ def functions(latitude,longitude):
                 pricee.append(variant3)
                 
         all_list = [restaurant_name, link, comment_number, rating, address, distance, menu_categories_name, product_namee, descriptionn, pricee]
-        # En uzun listedeki eleman sayısına göre diğer listeleri uzatın (boşluklarla)
+        # Extend other lists according to the number of elements in the longest list (with spaces)
         max_len = max(len(l) for l in all_list)
         for l in all_list:
             l.extend([''] * (max_len - len(l)))
@@ -154,8 +154,9 @@ def functions(latitude,longitude):
 def main():
     latitude = 36.89803386448301
     longitude = 30.71341047892254
+    limit = 100
     
-    df = functions(latitude,longitude)
+    df = functions(latitude,longitude,limit)
     
     postgre_insert(df)
     
