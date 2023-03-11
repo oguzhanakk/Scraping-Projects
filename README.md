@@ -1,4 +1,4 @@
-# All-Scrapy-or-Selenium-Projects
+# All-Scrapy-Selenium-Request-Projects
 Repository containing python programs that use Scrapy or selenium to extract information from multiple websites or applications and export it to a PostgreSQL database, send it to relevant people via e-mail, or export it to excel.
 
 # Requirements
