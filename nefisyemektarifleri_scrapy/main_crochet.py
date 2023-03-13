@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from flask import Flask
 from scrapy.crawler import CrawlerRunner
-from cimri import CimriSpider
+from nefisyemektarifleri import nefisyemektarifleri
 
 app = Flask('Scrape With Flask')
 crawl_runner = CrawlerRunner() 
@@ -18,7 +18,7 @@ def crawl_for_quotes():
 def scrape_with_crochet():
     start_time= datetime.now()
     print(f"Script started at {start_time}")
-    eventual = crawl_runner.crawl(CimriSpider)
+    eventual = crawl_runner.crawl(nefisyemektarifleri)
     print("crawl_runner has run")
     eventual.addCallback(finished_scrape)
     print("addCallBack has run")
