@@ -1,13 +1,8 @@
 # nefisyemektarifleri_scrapy
-It is a python program that, when you give a category name on https://www.cimri.com/, goes to that category and scans all its pages and extracts data such as the relevant date, product name, product price, brand, and if you do not provide a category, it extracts data for all main and sub-categories. After the given is imported, it transfers it to the Postgre database. After connecting to lambda in aws the log will be up and running.
+The python program that scrapes the https://www.nefisyemekrecipi.com/ site. After the data is received, it transfers it to the Postgre database. After connecting to lambda in aws the log will be up and running.
 
 # Requirements
 To run this project, you will need to have the following software requirements:
-
-• scrapy
-• postgre
-• pandas
-• flask
 
 # Setup
 To run this project on your own computer, follow these steps:
