@@ -17,6 +17,8 @@ PORT = os.environ.get("DB_PORT")
 SCHEMA = os.environ.get("DB_SCHEMA")
 TABLE = os.environ.get("DB_TABLE")
 
+USER_AGENT = os.environ.get("USER_AGENT")
+
 class nefisyemektarifleri(scrapy.Spider):
 
     name = 'nefisyemektarifleri'   
@@ -38,7 +40,7 @@ class nefisyemektarifleri(scrapy.Spider):
     
     def start_requests(self):
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+            'User-Agent': USER_AGENT
         }
         for url in self.start_urls:
             yield scrapy.Request(url, headers=self.headers)
